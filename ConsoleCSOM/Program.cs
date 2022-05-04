@@ -62,6 +62,8 @@ namespace ConsoleCSOM
 
 
 
+
+
                 }
 
                 Console.WriteLine($"Press Any Key To Stop!");
@@ -161,6 +163,19 @@ namespace ConsoleCSOM
 
             ctx.Load(items);
             await ctx.ExecuteQueryAsync();
+}
+
+        public static SPField CreateSiteColumn(SPWeb web, string displayName, SPFieldType fieldType, string groupDescriptor)
+        {
+            if (!web.Fields.ContainsField(displayName))
+            {
+                string fieldName = web.Fields.Add(displayName, fieldType, false);
+                SPField field = web.Fields.GetFieldByInternalName(fieldName);
+                field.Group = groupDescriptor;
+                field.Update();
+                return field;
+            }
+            return web.Fields[displayName];
         }
     }
 }
