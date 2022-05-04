@@ -26,11 +26,42 @@ namespace ConsoleCSOM
                     ClientContext ctx = GetContext(clientContextHelper);
                     ctx.Load(ctx.Web);
                     await ctx.ExecuteQueryAsync();
-
                     Console.WriteLine($"Site {ctx.Web.Title}");
 
-                    //await SimpleCamlQueryAsync(ctx);
-                    await CsomTermSetAsync(ctx);
+                    //[1.1] Using CSOM create a list name "CSOM Test"
+
+                    //ListCreationInformation creationInfo = new ListCreationInformation();
+                    //creationInfo.Title = "CSOM Test";
+                    //creationInfo.Description = "using CSOM create a list";
+                    //creationInfo.TemplateType = (int)ListTemplateType.GenericList; //Custom list
+
+                    //List newList = ctx.Web.Lists.Add(creationInfo);
+                    //ctx.Load(newList);
+                    //// Execute the query to the server.
+                    //ctx.ExecuteQuery();
+
+                    //[1.2] Create term set "city-han" in dev tenant
+                    //[1.3] Create 2 term "Ho Chi Minh" and "Stockholm" in termset "city-han"
+
+                    //string termGroupName = "city";
+                    //string termSetName = "city-han";
+                    //TaxonomySession taxonomySession = TaxonomySession.GetTaxonomySession(ctx);
+                    //TermStore termStore = taxonomySession.GetDefaultSiteCollectionTermStore();
+                    //if (termStore != null)
+                    //{
+                    //    TermGroup termGroup = termStore.CreateGroup(termGroupName, Guid.NewGuid());
+                    //    TermSet myTermSet = termGroup.CreateTermSet(termSetName, Guid.NewGuid(), 1033);
+                    //    myTermSet.CreateTerm("Ho Chi Minh", 1033, Guid.NewGuid());
+                    //    myTermSet.CreateTerm("Stockholm", 1033, Guid.NewGuid());
+                    //    ctx.ExecuteQuery();
+                    //}
+                    
+                    //[1.4] Create site fields "about" type text and field "city" type taxonomy
+                    //[1.5] Create site content type "CSOM Test content type" => add this to "CSOM test"
+                    // add fields "about" and "city" to this.
+
+
+
                 }
 
                 Console.WriteLine($"Press Any Key To Stop!");
@@ -38,6 +69,7 @@ namespace ConsoleCSOM
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex);
             }
         }
 

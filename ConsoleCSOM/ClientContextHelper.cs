@@ -15,7 +15,7 @@ namespace ConsoleCSOM
     {
         private static readonly HttpClient httpClient = new HttpClient();
         private const string tokenEndpoint = "https://login.microsoftonline.com/common/oauth2/token";
-        private const string defaultAADAppId = "9bc3ab49-b65d-410a-85ad-de819febfddc";
+        private const string defaultAADAppId = "5b4dd285-24f9-4b11-9018-969ac7a720cc";
 
         // Token cache handling
         private static readonly SemaphoreSlim semaphoreSlimTokens = new SemaphoreSlim(1);
