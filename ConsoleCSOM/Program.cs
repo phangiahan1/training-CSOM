@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.SharePoint.Client.Taxonomy;
+using Microsoft.VisualBasic.FileIO;
 
 namespace ConsoleCSOM
 {
@@ -55,14 +56,63 @@ namespace ConsoleCSOM
                     //    myTermSet.CreateTerm("Stockholm", 1033, Guid.NewGuid());
                     //    ctx.ExecuteQuery();
                     //}
-                    
+
                     //[1.4] Create site fields "about" type text and field "city" type taxonomy
-                    //[1.5] Create site content type "CSOM Test content type" => add this to "CSOM test"
-                    // add fields "about" and "city" to this.
+
+                    //Web rootWeb = ctx.Site.RootWeb;
+                    //// Mind the AddFieldOptions.AddFieldInternalNameHint flag
+                    //rootWeb.Fields.AddFieldAsXml("<Field DisplayName='about' " +
+                    //    "Name='about' ID='{2d9c2efe-58f2-4003-85ce-0251eb174096}' " +
+                    //    "Group='CSOM city projects' " +
+                    //    "Type='Text' />", 
+                    //    false, 
+                    //    AddFieldOptions.AddFieldInternalNameHint);
+                    //Field field = rootWeb.Fields.AddFieldAsXml("<Field DisplayName='city' " +
+                    //    "Name='city' ID='{abf2bde8-f99b-4f76-89d0-1cb5f19695b8}' " +
+                    //    "Group='CSOM city projects' Type='TaxonomyFieldType' />", 
+                    //    false, 
+                    //    AddFieldOptions.AddFieldInternalNameHint);
+
+                    //ctx.ExecuteQuery();
+
+                    //Guid termStoreId = Guid.Empty;
+                    //Guid termSetId = Guid.Empty;
+                    //GetTaxonomyFieldInfo(ctx, out termStoreId, out termSetId);
+
+                    //// Retrieve as Taxonomy Field
+                    //TaxonomyField taxonomyField = ctx.CastTo<TaxonomyField>(field);
+                    //taxonomyField.SspId = termStoreId;
+                    //taxonomyField.TermSetId = termSetId;
+                    //taxonomyField.TargetTemplate = String.Empty;
+                    //taxonomyField.AnchorId = Guid.Empty;
+                    //taxonomyField.Update();
+
+                    //ctx.ExecuteQuery();
+
+                    //[1.5] Create site content type "CSOM Test content type"
+                    //      => add this to "CSOM test" add fields "about" and "city" to this.
+
+                    Web rootWeb = ctx.Site.RootWeb;
+
+                    // create by ID
+                    rootWeb.ContentTypes.Add(new ContentTypeCreationInformation
+                    {
+                        Name = "CSOM Test content type",
+                        Id = "0x0100BDD5E43587AF469CA722FD068065DF5D",
+                        Group = "CSOM city projects Content Types"
+                    });
+                    ctx.ExecuteQuery();
+
+                    //[1.6] In list "CSOM test" set "CSOM Test content type" as default content type
 
 
+                    //[1.7] Create 5 list items to list with some value  in field "about" and "city"
 
 
+                    //[1.8] Update site field "about" set default value for it to"about default" then create 2 new list items
+
+
+                    //[1.9] Update site field "city" set default value for it to"Ho Chi Minh" then create 2 new list items
 
                 }
 
@@ -165,17 +215,21 @@ namespace ConsoleCSOM
             await ctx.ExecuteQueryAsync();
 }
 
-        public static SPField CreateSiteColumn(SPWeb web, string displayName, SPFieldType fieldType, string groupDescriptor)
+        private static void GetTaxonomyFieldInfo(ClientContext clientContext, out Guid termStoreId, out Guid termSetId)
         {
-            if (!web.Fields.ContainsField(displayName))
-            {
-                string fieldName = web.Fields.Add(displayName, fieldType, false);
-                SPField field = web.Fields.GetFieldByInternalName(fieldName);
-                field.Group = groupDescriptor;
-                field.Update();
-                return field;
-            }
-            return web.Fields[displayName];
+            termStoreId = Guid.Empty;
+            termSetId = Guid.Empty;
+
+            TaxonomySession session = TaxonomySession.GetTaxonomySession(clientContext);
+            TermStore termStore = session.GetDefaultSiteCollectionTermStore();
+            TermSetCollection termSets = termStore.GetTermSetsByName("SPSNL14", 1033);
+
+            clientContext.Load(termSets, tsc => tsc.Include(ts => ts.Id));
+            clientContext.Load(termStore, ts => ts.Id);
+            clientContext.ExecuteQuery();
+
+            termStoreId = termStore.Id;
+            termSetId = termSets.FirstOrDefault()!.Id;
         }
     }
 }
