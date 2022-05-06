@@ -26,11 +26,12 @@ namespace ConsoleCSOM
             {
                 using (var clientContextHelper = new ClientContextHelper())
                 {
+                    string LIST_NAME = "CSOM Test";
                     ClientContext ctx = GetContext(clientContextHelper);
                     ctx.Load(ctx.Web);
                     await ctx.ExecuteQueryAsync();
                     Console.WriteLine($"Site {ctx.Web.Title}");
-    
+
                     //[1.1] Using CSOM create a list name "CSOM Test"
                     //await CreateList(ctx, "CSOM Test", "using CSOM create a list");
 
@@ -49,9 +50,9 @@ namespace ConsoleCSOM
                     //await CreateSiteFieldTypeText(ctx, "about", "about", groupName);
                     //await CreateSiteFieldTypeTaxonomy(ctx, "city", "city", groupName);
 
-                     //[1.5] Create site content type "CSOM Test content type"
-                     //      => add this to "CSOM test"
-                     //      add fields "about" and "city" to this.
+                    //[1.5] Create site content type "CSOM Test content type"
+                    //      => add this to "CSOM test"
+                    //      add fields "about" and "city" to this.
                     string ContentTypeId = "0x0101009189AB5D3D2647B580F011DA2F356FB2";
                     string ContentTypeGroupName = "CSOM city projects Content Types";
                     //await CreateContentType(ctx, "CSOM Test content type", ContentTypeId, ContentTypeGroupName);
@@ -70,7 +71,7 @@ namespace ConsoleCSOM
                     //await CreateListItem(ctx, "CSOM Test", "Xa Thi Man", "");
 
                     //[1.8] Update site field "about" set default value for it to"about default" then create 2 new list items
-                    //await UpdateDefaultValueSiteFieldTypeText(ctx, "CSOM Test", "about", "about default");
+                    //await UpdateDefaultValueSiteFieldTypeTextInList(ctx, "CSOM Test", "about", "about default");
                     //await CreateListItem(ctx, "CSOM Test", null, "");
                     //await CreateListItem(ctx, "CSOM Test", "Not null", "");
 
@@ -101,9 +102,45 @@ namespace ConsoleCSOM
                     //[2.3] Write function update list items in batch, try to update 2 items every time and update field “about” which have value
                     //“about default” to “Update script”. (CAML)
 
+                    //await CAMLQueryUpdateMutiListItems(ctx, "CSOM Test", "about", "Text", "about default", "Update script");
 
                     //[2.4] Create new field “author” type people in list “CSOM Test” then migrate all list items to set user admin to field “CSOM Test Author”
 
+                    //await CreateSiteFieldPeopleInList(ctx, "CSOM Test", "author", "author", groupName);
+                    //await MigrateAllListItemsToSetUserAdmin(ctx, LIST_NAME);
+
+                    //[3.1] Create Taxonomy Field which allow multi values, with name “cities” map to your termset.
+
+                    //[3.2] Add field “cities” to content type “CSOM Test content type” make sure don’t need update list but added field
+                    //should be available in your list “CSOM test”
+
+                    //[3.3] Add 3 list item to list “CSOM test” and set multi value to field “cities” 
+
+                    //[3.4] Create new List type Document lib name “Document Test” add content type “CSOM Test content type” to this list.
+
+
+                    //[3.5]Create Folder “Folder 1” in root of list “Document Test” then create “Folder 2” inside “Folder 1”,
+                    //Create 3 list items in “Folder 2” with value “Folder test” in field “about”. Create 2 flies in “Folder 2”
+                    //with value “Stockholm” in field “cities”.
+
+
+                    //[3.6] Write CAML get all list item just in “Folder 2” and have value “Stockholm” in “cities” field
+
+
+                    //[3.7] Create List Item in “Document Test” by upload a file Document.docx 
+
+                    //[4.1] Create View “Folders” in List “Document Test” which only show folder structure, and set this view as default
+
+                    //[4.2] Write code to load User from user email or name
+
+                    //[4.4] tìm hiểu về TaxonomyHiddenList
+                    /*
+                     * 
+                     */
+                    //[4.5] tìm hiểu về function EnsureUser và cách hoạt động
+                    /*
+                     * 
+                     */
                 }
                 Console.WriteLine($"Press Any Key To Stop!");
                 Console.ReadKey();
@@ -183,7 +220,7 @@ namespace ConsoleCSOM
 
             ctx.Load(items);
             await ctx.ExecuteQueryAsync();
-}
+        }
 
         //Exercise 1: 
         private static void GetTaxonomyFieldInfo(ClientContext clientContext, out Guid termStoreId, out Guid termSetId)
@@ -241,7 +278,7 @@ namespace ConsoleCSOM
             termSet.CreateTerm(termName, 1033, Guid.NewGuid());
             await ctx.ExecuteQueryAsync();
         }
-        private static async Task CreateSiteFieldTypeText(ClientContext ctx, string displayName,string name, string groupName)
+        private static async Task CreateSiteFieldTypeText(ClientContext ctx, string displayName, string name, string groupName)
         {
             Web rootWeb = ctx.Site.RootWeb;
             // Mind the AddFieldOptions.AddFieldInternalNameHint flag
@@ -253,7 +290,7 @@ namespace ConsoleCSOM
         private static async Task CreateSiteFieldTypeTaxonomy(ClientContext ctx, string displayName, string name, string groupName)
         {
             Web rootWeb = ctx.Site.RootWeb;
-            Field field =  rootWeb.Fields.AddFieldAsXml($"<Field DisplayName='{displayName}' Name='{name}' Group='{groupName}' Type='TaxonomyFieldType'/>",
+            Field field = rootWeb.Fields.AddFieldAsXml($"<Field DisplayName='{displayName}' Name='{name}' Group='{groupName}' Type='TaxonomyFieldType'/>",
                false,
                AddFieldOptions.AddFieldInternalNameHint);
             await ctx.ExecuteQueryAsync();
@@ -369,17 +406,17 @@ namespace ConsoleCSOM
             ListItemCreationInformation itemCreateInfo = new ListItemCreationInformation();
             ListItem oListItem = oList.AddItem(itemCreateInfo);
 
-            if(about != null)
+            if (about != null)
             {
                 oListItem["about"] = about;
             }
-            
+
             string fieldValue;
-            if(city == "Ho Chi Minh")
+            if (city == "Ho Chi Minh")
             {
                 fieldValue = "Ho Chi Minh|90dd8af9-e9f0-4f6e-ac57-68200c8ea34c";
-            } 
-            else if(city == "Stockholm")
+            }
+            else if (city == "Stockholm")
             {
                 fieldValue = "Stockholm|f50c5a60-1411-447d-81ca-4242f11d5380";
             }
@@ -419,8 +456,8 @@ namespace ConsoleCSOM
             Field field = olist.Fields.GetByInternalNameOrTitle(fieldName);
             TaxonomyField txField = ctx.CastTo<TaxonomyField>(field);
             TaxonomyFieldValue termValue = new TaxonomyFieldValue();
-            
-            if(fieldValue == "Ho Chi Minh")
+
+            if (fieldValue == "Ho Chi Minh")
             {
                 termValue.Label = "Ho Chi Minh";
                 termValue.TermGuid = "90dd8af9-e9f0-4f6e-ac57-68200c8ea34c";
@@ -474,7 +511,7 @@ namespace ConsoleCSOM
             ctx.Load(rootWeb);
             await ctx.ExecuteQueryAsync();
         }
-        
+
         //Exercise 2:
         private static async Task CAMLQueryWithWhere(ClientContext ctx, string listName, string fieldName, string fielsType, string Operators, string OperatorsValue)
         {
@@ -498,10 +535,8 @@ namespace ConsoleCSOM
             foreach (ListItem oListItem in listItems)
             {
                 TaxonomyFieldValue taxFieldValue = oListItem["city"] as TaxonomyFieldValue;
-                Console.WriteLine("about: {0}  - city: {1}",  oListItem["about"], taxFieldValue.Label);
+                Console.WriteLine("about: {0}  - city: {1}", oListItem["about"], taxFieldValue.Label);
             }
-
-
         }
         private static async Task CreateListViewWithOrderNewestAndWhereCityInHoChiMinh(ClientContext ctx, string listName)
         {
@@ -550,9 +585,85 @@ namespace ConsoleCSOM
             listView.Update();
             await ctx.ExecuteQueryAsync();
         }
-        private static async Task CAMLQueryUpdateMutiListItems(ClientContext ctx, string listName, string fieldName, string currentValue, string newValue)
+        private static async Task CAMLQueryUpdateMutiListItems(ClientContext ctx, string listName, string fieldName, string fielsType, string currentValue, string newValue)
         {
+            List list = ctx.Web.Lists.GetByTitle(listName);
 
+            CamlQuery query = new CamlQuery();
+            query.ViewXml = "<View>"
+               + "<Query>"
+               + $"<Where><Eq><FieldRef Name='{fieldName}' /><Value Type='{fielsType}'>{currentValue}</Value></Eq></Where>"
+               + "</Query>"
+               + "</View>";
+            // execute the query
+            ListItemCollection listItems = list.GetItems(query);
+            ctx.Load(listItems);
+            await ctx.ExecuteQueryAsync();
+
+            foreach (ListItem oListItem in listItems)
+            {
+                oListItem[fieldName] = newValue;
+                oListItem.Update();
+                await ctx.ExecuteQueryAsync();
+            }
+
+            foreach (ListItem oListItem in listItems)
+            {
+                TaxonomyFieldValue taxFieldValue = oListItem["city"] as TaxonomyFieldValue;
+                Console.WriteLine("about: {0}  - city: {1}", oListItem["about"], taxFieldValue.Label);
+            }
+        }
+
+        private static async Task CreateSiteFieldPeople(ClientContext ctx, string displayName, string name, string groupName)
+        {
+            Web rootWeb = ctx.Site.RootWeb;
+            // Mind the AddFieldOptions.AddFieldInternalNameHint flag
+            rootWeb.Fields.AddFieldAsXml($"<Field DisplayName='{displayName}' Name='{name}' StaticName='{name}' Group='{groupName}' Type='User'/>",
+                false,
+                AddFieldOptions.AddFieldInternalNameHint);
+            await ctx.ExecuteQueryAsync();
+        }
+        private static async Task CreateSiteFieldPeopleInList(ClientContext ctx, string listName, string displayName, string name, string groupName)
+        {
+            List list = ctx.Web.Lists.GetByTitle(listName);
+            // Mind the AddFieldOptions.AddFieldInternalNameHint flag
+            list.Fields.AddFieldAsXml($"<Field DisplayName='{displayName}' Name='{name}' StaticName='{name}' Group='{groupName}' Type='User'/>",
+                false,
+                AddFieldOptions.AddFieldInternalNameHint);
+            await ctx.ExecuteQueryAsync();
+        }
+        private static async Task MigrateAllListItemsToSetUserAdmin(ClientContext ctx, string listName)
+        {
+            List list = ctx.Web.Lists.GetByTitle(listName);
+            User user = list.Author;
+
+            CamlQuery query = new CamlQuery();
+            query.ViewXml = "<View>"
+               + "<Query>"
+               + $"<Where><Neq><FieldRef Name='city' /><Value Type='city'></Value></Eq></Where>"
+               + "</Query>"
+               + "</View>";
+            // execute the query
+            ListItemCollection listItems = list.GetItems(query);
+            ctx.Load(listItems);
+            await ctx.ExecuteQueryAsync();
+
+            foreach (ListItem oListItem in listItems)
+            {
+                oListItem["author0"] = user;
+                oListItem.Update();
+                await ctx.ExecuteQueryAsync();
+            }
+
+            foreach (ListItem oListItem in listItems)
+            {
+                TaxonomyFieldValue taxFieldValue = oListItem["city"] as TaxonomyFieldValue;
+                FieldUserValue userValue = oListItem["author0"] as FieldUserValue;
+                User author = ctx.Web.EnsureUser(userValue.Email);
+                ctx.Load(author);
+                await ctx.ExecuteQueryAsync();
+                Console.WriteLine("about: {0}  - city: {1} - author: {2}", oListItem["about"], taxFieldValue.Label, author.Title);
+            }
         }
     }
 }
