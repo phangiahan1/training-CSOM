@@ -110,28 +110,34 @@ namespace ConsoleCSOM
                     //await MigrateAllListItemsToSetUserAdmin(ctx, LIST_NAME);
 
                     //[3.1] Create Taxonomy Field which allow multi values, with name “cities” map to your termset.
+                    //await CreateSiteFieldTypeTaxonomyMuti(ctx, "cities", "cities", groupName);
 
                     //[3.2] Add field “cities” to content type “CSOM Test content type” make sure don’t need update list but added field
                     //should be available in your list “CSOM test”
+                    //TODO...
 
                     //[3.3] Add 3 list item to list “CSOM test” and set multi value to field “cities” 
+                    //TODO...
 
                     //[3.4] Create new List type Document lib name “Document Test” add content type “CSOM Test content type” to this list.
-
+                    //TODO...
 
                     //[3.5]Create Folder “Folder 1” in root of list “Document Test” then create “Folder 2” inside “Folder 1”,
                     //Create 3 list items in “Folder 2” with value “Folder test” in field “about”. Create 2 flies in “Folder 2”
                     //with value “Stockholm” in field “cities”.
-
+                    //TODO...
 
                     //[3.6] Write CAML get all list item just in “Folder 2” and have value “Stockholm” in “cities” field
-
+                    //TODO...
 
                     //[3.7] Create List Item in “Document Test” by upload a file Document.docx 
+                    //TODO...
 
                     //[4.1] Create View “Folders” in List “Document Test” which only show folder structure, and set this view as default
+                    //TODO...
 
                     //[4.2] Write code to load User from user email or name
+                    //TODO...
 
                     //[4.4] tìm hiểu về TaxonomyHiddenList
                     /*
@@ -664,6 +670,31 @@ namespace ConsoleCSOM
                 await ctx.ExecuteQueryAsync();
                 Console.WriteLine("about: {0}  - city: {1} - author: {2}", oListItem["about"], taxFieldValue.Label, author.Title);
             }
+        }
+
+        //Exercise 3:
+        private static async Task CreateSiteFieldTypeTaxonomyMuti(ClientContext ctx, string displayName, string name, string groupName)
+        {
+            Web rootWeb = ctx.Site.RootWeb;
+            Field field = rootWeb.Fields.AddFieldAsXml($"<Field DisplayName='{displayName}' Name='{name}' Group='{groupName}' Type='TaxonomyFieldTypeMulti'/>",
+               false,
+               AddFieldOptions.AddFieldInternalNameHint);
+            await ctx.ExecuteQueryAsync();
+
+            Guid termStoreId = Guid.Empty;
+            Guid termSetId = Guid.Empty;
+            GetTaxonomyFieldInfo(ctx, out termStoreId, out termSetId);
+
+            // Retrieve as Taxonomy Field
+            TaxonomyField taxonomyField = ctx.CastTo<TaxonomyField>(field);
+            taxonomyField.SspId = termStoreId;
+            taxonomyField.TermSetId = termSetId;
+            taxonomyField.TargetTemplate = String.Empty;
+            taxonomyField.AnchorId = Guid.Empty;
+            taxonomyField.AllowMultipleValues = true;
+            taxonomyField.Update();
+
+            await ctx.ExecuteQueryAsync();
         }
     }
 }
