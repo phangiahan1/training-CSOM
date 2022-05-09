@@ -12,6 +12,7 @@ using System.IO;
 using ListItem = Microsoft.SharePoint.Client.ListItem;
 using View = Microsoft.SharePoint.Client.View;
 using System.Text;
+using Microsoft.SharePoint.Client.UserProfiles;
 
 namespace ConsoleCSOM
 {
@@ -160,10 +161,16 @@ namespace ConsoleCSOM
                     //await CreateFileInDocumnetLibByUpload(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "Document.docx");
 
                     //[4.1] Create View “Folders” in List “Document Test” which only show folder structure, and set this view as default
-                    
+                    //await TestGetAllFolder(ctx, DOCUMENT_LIST_NAME);
+                    string VIEW_NAME = "All Folders";
+                    //await CreateListViewFolderOnly(ctx, DOCUMENT_LIST_NAME, VIEW_NAME);
+                    //await SetCurrentViewAsDefault(ctx, DOCUMENT_LIST_NAME, VIEW_NAME);
 
                     //[4.2] Write code to load User from user email or name
-                    //TODO...
+
+                    //await LoadUserFromEmailOrName(ctx, "Hân Phan Gia");
+                    await LoadUserFromEmailOrName(ctx, "gdfgesgfsdfs");
+                    //await LoadUserFromEmailOrName(ctx, "GiaHan2206@y48hl.onmicrosoft.com");
 
                     //[4.4] tìm hiểu về TaxonomyHiddenList
                     /*
@@ -936,6 +943,114 @@ namespace ConsoleCSOM
             Microsoft.SharePoint.Client.File newFile = targetFolder.Files.Add(createFile);
             ctx.Load(newFile);
             await ctx.ExecuteQueryAsync();
+        }
+        private static async Task CreateListViewFolderOnly(ClientContext ctx, string listName, string viewName)
+        {
+            List targetList = ctx.Web.Lists.GetByTitle(listName);
+
+            ViewCollection viewCollection = targetList.Views;
+            ctx.Load(viewCollection);
+
+            ViewCreationInformation viewCreationInformation = new ViewCreationInformation();
+            viewCreationInformation.Title = viewName;
+
+            // Specify type of the view. Below are the options
+
+            // 1. none - The type of the list view is not specified
+            // 2. html - Sspecifies an HTML list view type
+            // 3. grid - Specifies a datasheet list view type
+            // 4. calendar- Specifies a calendar list view type
+            // 5. recurrence - Specifies a list view type that displays recurring events
+            // 6. chart - Specifies a chart list view type
+            // 7. gantt - Specifies a Gantt chart list view type
+
+            viewCreationInformation.ViewTypeKind = ViewType.Html;
+
+            // You can optionally specify row limit for the view
+            //viewCreationInformation.RowLimit = 10;
+
+            // You can optionally specify a query as mentioned below.
+            // Create one CAML query to filter list view and mention that query below
+            viewCreationInformation.Query =
+                    "    <Where>"
+                  + "      <Eq><FieldRef Name='FSObjType' /><Value Type='Integer'>1</Value></Eq>"
+                  + "    </Where>";
+            //viewCreationInformation.Query = "<OrderBy><FieldRef Name='Created' Ascending='FALSE'/></OrderBy>";
+
+            // Add all the fields over here with comma separated value as mentioned below
+            // You can mention display name or internal name of the column
+            string CommaSeparateColumnNames = "Name,about,city";
+            viewCreationInformation.ViewFields = CommaSeparateColumnNames.Split(',');
+
+            View listView = viewCollection.Add(viewCreationInformation);
+            ctx.ExecuteQuery();
+
+            // Code to update the display name for the view.
+            listView.Title = viewName;
+
+            // You can optionally specify Aggregation: Field references for totals columns or calculated columns
+            //listView.Aggregations = "<FieldRef Name='Title' Type='COUNT'/>";
+
+            listView.Update();
+            await ctx.ExecuteQueryAsync();
+        }
+        private static async Task TestGetAllFolder(ClientContext clientContext, string title)
+        {
+            List spList = clientContext.Web.Lists.GetByTitle(title);
+            clientContext.Load(spList);
+            clientContext.ExecuteQuery();
+
+            if (spList != null && spList.ItemCount > 0)
+            {
+                CamlQuery camlQuery = new CamlQuery();
+                camlQuery.ViewXml =
+                    "<View Scope='RecursiveAll'>"
+                  + "  <Query>"
+                  + "    <Where>"
+                  + "      <Eq><FieldRef Name='FSObjType' /><Value Type='Integer'>1</Value></Eq>"
+                  + "    </Where>"
+                  + "  </Query>"
+                  + "  <ViewFields><FieldRef Name='Title' /></ViewFields>"
+                  + "</View>";
+
+                ListItemCollection listItems = spList.GetItems(camlQuery);
+
+                clientContext.Load(listItems);
+                await clientContext.ExecuteQueryAsync();
+
+                foreach (var item in listItems)
+                {
+                    //Console.WriteLine($"Title: {item.FieldValues["Title"]} - FileRef: { item.FieldValues["FileRef"]}-FileLeafRef: { item.FieldValues["FileLeafRef"]}");
+                    Console.WriteLine($"Title: {item.FieldValues["FileRef"]}");
+                }
+            }
+        }
+        private static async Task SetCurrentViewAsDefault(ClientContext ctx, string listName,string viewName)
+        {
+            List list = ctx.Web.Lists.GetByTitle(listName);
+            View view = list.Views.GetByTitle(viewName);
+
+            view.DefaultView = true;
+            view.Update();
+
+            await ctx.ExecuteQueryAsync();  
+        }
+        private static async Task LoadUserFromEmailOrName(ClientContext ctx, string nameOrMail)
+        {
+            try
+            {
+                User user = ctx.Web.EnsureUser(nameOrMail);
+                ctx.Load(user);
+                await ctx.ExecuteQueryAsync();
+
+                Console.WriteLine(user.Email);
+                Console.WriteLine(user.Title);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Not a valid person");
+            }
+            Console.ReadLine();
         }
     }
 }
