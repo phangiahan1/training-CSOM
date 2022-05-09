@@ -114,13 +114,21 @@ namespace ConsoleCSOM
 
                     //[3.2] Add field “cities” to content type “CSOM Test content type” make sure don’t need update list but added field
                     //should be available in your list “CSOM test”
-                    //TODO...
+                    //await AddFieldToContentType(ctx, "cities", ContentTypeId);
 
                     //[3.3] Add 3 list item to list “CSOM test” and set multi value to field “cities” 
-                    //TODO...
+                    List<string> citiesList = new List<string>();
+                    citiesList.Add("Ho Chi Minh");
+                    citiesList.Add("Stockholm");
+                    //await CreateListItem(ctx, LIST_NAME, "cau 3.3 item 1", citiesList);
+                    //await CreateListItem(ctx, LIST_NAME, "cau 3.3 item 2", new List<string>{ "Ho Chi Minh"} );
+                    //await CreateListItem(ctx, LIST_NAME, "cau 3.3 item 3", new List<string> { "Stockholm" });
+                    //await CreateListItem(ctx, LIST_NAME, "cau 3.3 item 4", new List<string> { "Ho Chi Minh", "Stockholm" });
+                    //await CreateListItem(ctx, LIST_NAME, "cau 3.3 item 5", new List<string> { "Stockholm", "Ho Chi Minh" });
 
                     //[3.4] Create new List type Document lib name “Document Test” add content type “CSOM Test content type” to this list.
-                    //TODO...
+                    //await CreateDocumentLib(ctx, "Document Test", "Document Test");
+                    //await AddContentTypeToList(ctx, "CSOM Test content type", "Document Test");
 
                     //[3.5]Create Folder “Folder 1” in root of list “Document Test” then create “Folder 2” inside “Folder 1”,
                     //Create 3 list items in “Folder 2” with value “Folder test” in field “about”. Create 2 flies in “Folder 2”
@@ -141,12 +149,19 @@ namespace ConsoleCSOM
 
                     //[4.4] tìm hiểu về TaxonomyHiddenList
                     /*
-                     * 
+                     * TODO...
                      */
                     //[4.5] tìm hiểu về function EnsureUser và cách hoạt động
                     /*
-                     * 
+                     * TODO...
                      */
+
+                    //await CreateSiteFieldTypeText(ctx, "nhap", "nhap", groupName);
+                    //await AddFieldToContentType(ctx, "nhap", "0x0100BDD5E43587AF469CA722FD068065DF5D");
+                    //await AddContentTypeToList(ctx, "CSOM Test content type111", "Nhap");
+                    //await SetDefaultContentType(ctx, "CSOM Test content type111", "Nhap");
+                    //await CreateSiteFieldTypeText(ctx, "nhap1", "nhap1", groupName);
+                    //await AddFieldToContentType(ctx, "nhap1", "0x0100BDD5E43587AF469CA722FD068065DF5D");
                 }
                 Console.WriteLine($"Press Any Key To Stop!");
                 Console.ReadKey();
@@ -397,8 +412,6 @@ namespace ConsoleCSOM
             string[] term = fieldValue.Split('|');
             termValue.Label = term[0];
             termValue.TermGuid = term[1];
-            //termValue.Label = "Ho Chi Minh";
-            //termValue.TermGuid = "90dd8af9-e9f0-4f6e-ac57-68200c8ea34c";
             termValue.WssId = -1;
             txField.SetFieldValueByValue(listItem, termValue);
             listItem.Update();
@@ -694,6 +707,68 @@ namespace ConsoleCSOM
             taxonomyField.AllowMultipleValues = true;
             taxonomyField.Update();
 
+            await ctx.ExecuteQueryAsync();
+        }
+        public static void UpdateTaxonomyFieldMulti(ClientContext ctx, List list, ListItem listItem, string fieldName, string fieldValue)
+        {
+            Field field = list.Fields.GetByInternalNameOrTitle(fieldName);
+            TaxonomyField txField = ctx.CastTo<TaxonomyField>(field);
+            TaxonomyFieldValueCollection termValue = new TaxonomyFieldValueCollection(
+                ctx,
+                fieldValue,
+                txField);
+            txField.SetFieldValueByValueCollection(listItem, termValue);
+            listItem.Update();
+            ctx.Load(listItem);
+            ctx.ExecuteQuery();
+        }
+        private static async Task CreateListItem(ClientContext ctx, string listName, string about, List<string> cities)
+        {
+            List oList = ctx.Web.Lists.GetByTitle(listName);
+
+            ListItemCreationInformation itemCreateInfo = new ListItemCreationInformation();
+            ListItem oListItem = oList.AddItem(itemCreateInfo);
+
+            if (about != null)
+            {
+                oListItem["about"] = about;
+            }
+            string fieldValue = "-1;";
+            int count = 0;
+            foreach (string city in cities)
+            {
+                if (count != 0)
+                {
+                    fieldValue += ";#-1;";
+                }
+                if (city == "Ho Chi Minh")
+                {
+                    fieldValue += "#Ho Chi Minh|90dd8af9-e9f0-4f6e-ac57-68200c8ea34c";
+                }
+                else if (city == "Stockholm")
+                {
+                    fieldValue += "#Stockholm|f50c5a60-1411-447d-81ca-4242f11d5380";
+                }
+                count++;    
+            }
+            Console.WriteLine(fieldValue); 
+            UpdateTaxonomyFieldMulti(ctx, oList, oListItem, "cities", fieldValue);
+            oListItem.Update();
+            await ctx.ExecuteQueryAsync();
+            
+        }
+        private static async Task CreateDocumentLib(ClientContext ctx, string documentLibName, string description)
+        {
+            Console.WriteLine("Using CSOM create a documnet libary name: " + documentLibName);
+
+            ListCreationInformation creationInfo = new ListCreationInformation();
+            creationInfo.Title = documentLibName;
+            creationInfo.Description = description;
+            creationInfo.TemplateType = (int)ListTemplateType.DocumentLibrary; //Custom list
+
+            List newList = ctx.Web.Lists.Add(creationInfo);
+            ctx.Load(newList);
+            // Execute the query to the server.
             await ctx.ExecuteQueryAsync();
         }
     }
