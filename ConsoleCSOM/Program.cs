@@ -8,6 +8,10 @@ using Microsoft.SharePoint.Client.Taxonomy;
 using Microsoft.VisualBasic.FileIO;
 using System.Collections.Generic;
 using Microsoft.SharePoint.News.DataModel;
+using System.IO;
+using ListItem = Microsoft.SharePoint.Client.ListItem;
+using View = Microsoft.SharePoint.Client.View;
+using System.Text;
 
 namespace ConsoleCSOM
 {
@@ -131,22 +135,32 @@ namespace ConsoleCSOM
                     //await CreateDocumentLib(ctx, "Document Test", "Document Test");
                     //await AddContentTypeToList(ctx, "CSOM Test content type", "Document Test");
 
-                    //[3.5]Create Folder “Folder 1” in root of list “Document Test” then create “Folder 2” inside “Folder 1”,
-                    //Create 3 list items in “Folder 2” with value “Folder test” in field “about”. Create 2 flies in “Folder 2”
-                    //with value “Stockholm” in field “cities”.
+                    //[3.5]Create Folder “Folder 1” in root of list “Document Test”
+                    //Create “Folder 2” inside “Folder 1”,
+                    //Create 3 list items in “Folder 2” with value “Folder test” in field “about”.
+                    //Create 2 flies in “Folder 2” with value “Stockholm” in field “cities”.
                     //await CreateFolderInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1");
-                    //await CreateSubFolderDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2");
-                    //await CreateSubFolderDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "Folder test");
-                    
+
+                    //await CreateFolderInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2");
+
+                    //await CreateFolderInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "Folder test");
+                    //await CreateFolderInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "Folder test 1");
+                    //await CreateFolderInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "Folder test 2");
+
+                    //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test", new List<string> { "Stockholm" });
+                    //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 1", new List<string> { "Stockholm" });
+                    //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 3", new List<string> { "Ho Chi Minh" });
+                    //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 4", new List<string> { "Ho Chi Minh", "Stockholm" });
+                    //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 5", new List<string> { "Stockholm" });
 
                     //[3.6] Write CAML get all list item just in “Folder 2” and have value “Stockholm” in “cities” field
-                    //TODO...
+                    //await CAMLQueryWithWhere(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2");
 
                     //[3.7] Create List Item in “Document Test” by upload a file Document.docx 
-                    //TODO...
+                    //await CreateFileInDocumnetLibByUpload(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "Document.docx");
 
                     //[4.1] Create View “Folders” in List “Document Test” which only show folder structure, and set this view as default
-                    //TODO...
+                    
 
                     //[4.2] Write code to load User from user email or name
                     //TODO...
@@ -182,69 +196,6 @@ namespace ConsoleCSOM
             IConfiguration config = builder.Build();
             var info = config.GetSection("SharepointInfo").Get<SharepointInfo>();
             return clientContextHelper.GetContext(new Uri(info.SiteUrl), info.Username, info.Password);
-        }
-
-        private static async Task GetFieldTermValue(ClientContext Ctx, string termId)
-        {
-            //load term by id
-            TaxonomySession session = TaxonomySession.GetTaxonomySession(Ctx);
-            Term taxonomyTerm = session.GetTerm(new Guid(termId));
-            Ctx.Load(taxonomyTerm, t => t.Labels,
-                                   t => t.Name,
-                                   t => t.Id);
-            await Ctx.ExecuteQueryAsync();
-        }
-
-        private static async Task CsomTermSetAsync(ClientContext ctx)
-        {
-            // Get the TaxonomySession
-            TaxonomySession taxonomySession = TaxonomySession.GetTaxonomySession(ctx);
-            // Get the term store by name
-            TermStore termStore = taxonomySession.GetDefaultSiteCollectionTermStore();
-            // Get the term group by Name
-            TermGroup termGroup = termStore.Groups.GetByName("Test");
-            // Get the term set by Name
-            TermSet termSet = termGroup.TermSets.GetByName("Test Term Set");
-
-            var terms = termSet.GetAllTerms();
-
-            ctx.Load(terms);
-            await ctx.ExecuteQueryAsync();
-        }
-
-        private static async Task CsomLinqAsync(ClientContext ctx)
-        {
-            var fieldsQuery = from f in ctx.Web.Fields
-                              where f.InternalName == "Test" ||
-                                    f.TypeAsString == "TaxonomyFieldTypeMulti" ||
-                                    f.TypeAsString == "TaxonomyFieldType"
-                              select f;
-
-            var fields = ctx.LoadQuery(fieldsQuery);
-            await ctx.ExecuteQueryAsync();
-        }
-
-        private static async Task SimpleCamlQueryAsync(ClientContext ctx)
-        {
-            var list = ctx.Web.Lists.GetByTitle("Documents");
-
-            var allItemsQuery = CamlQuery.CreateAllItemsQuery();
-            var allFoldersQuery = CamlQuery.CreateAllFoldersQuery();
-
-            var items = list.GetItems(new CamlQuery()
-            {
-                ViewXml = @"<View>
-                                <Query>
-                                    <OrderBy><FieldRef Name='ID' Ascending='False'/></OrderBy>
-                                </Query>
-                                <RowLimit>20</RowLimit>
-                            </View>",
-                FolderServerRelativeUrl = "/sites/test-site-duc-11111/Shared%20Documents/2"
-                //example for site: https://omniapreprod.sharepoint.com/sites/test-site-duc-11111/
-            });
-
-            ctx.Load(items);
-            await ctx.ExecuteQueryAsync();
         }
 
         //Exercise 1: 
@@ -548,10 +499,6 @@ namespace ConsoleCSOM
                + "</View>";
             // execute the query
             ListItemCollection listItems = list.GetItems(query);
-            //foreach (ListItem item in listItems)
-            //{
-            //    Console.WriteLine(item);
-            //}
             ctx.Load(listItems);
             await ctx.ExecuteQueryAsync();
 
@@ -753,13 +700,13 @@ namespace ConsoleCSOM
                 {
                     fieldValue += "#Stockholm|f50c5a60-1411-447d-81ca-4242f11d5380";
                 }
-                count++;    
+                count++;
             }
-            Console.WriteLine(fieldValue); 
+            Console.WriteLine(fieldValue);
             UpdateTaxonomyFieldMulti(ctx, oList, oListItem, "cities", fieldValue);
             oListItem.Update();
             await ctx.ExecuteQueryAsync();
-            
+
         }
         private static async Task CreateDocumentLib(ClientContext ctx, string documentLibName, string description)
         {
@@ -777,7 +724,7 @@ namespace ConsoleCSOM
         }
         private static async Task CreateFolderInDocumnetLib(ClientContext ctx, string documentLibName, string folderName)
         {
-            List list = ctx.Web.Lists.GetByTitle(documentLibName); 
+            List list = ctx.Web.Lists.GetByTitle(documentLibName);
             list.EnableFolderCreation = true;
             list.Update();
             await ctx.ExecuteQueryAsync();
@@ -793,7 +740,7 @@ namespace ConsoleCSOM
             newItem.Update();
             ctx.ExecuteQuery();
         }
-        private static async Task CreateSubFolderDocumnetLib(ClientContext ctx, string documentLibName, string rootFolderName, string folderName)
+        private static async Task CreateFolderInDocumnetLib(ClientContext ctx, string documentLibName, string rootFolderName, string folderName)
         {
             List list = ctx.Web.Lists.GetByTitle(documentLibName);
             list.EnableFolderCreation = true;
@@ -821,7 +768,7 @@ namespace ConsoleCSOM
             await ctx.ExecuteQueryAsync();
 
         }
-        private static async Task CreateSubFolderDocumnetLib(ClientContext ctx, string documentLibName, string rootFolderName, string subFolderName, string folderName)
+        private static async Task CreateFolderInDocumnetLib(ClientContext ctx, string documentLibName, string rootFolderName, string subFolderName, string folderName)
         {
             List list = ctx.Web.Lists.GetByTitle(documentLibName);
             list.EnableFolderCreation = true;
@@ -879,8 +826,116 @@ namespace ConsoleCSOM
             item["about"] = "Folder Test";
             item.Update();
             await ctx.ExecuteQueryAsync();
-            
-        }
 
+        }
+        private static async Task CreateFileInDocumnetLib(ClientContext ctx, string documentLibName, string rootFolderName, string subFolderName, string fileName, List<string> cities)
+        {
+            Microsoft.SharePoint.Client.Folder targetFolder = ctx.Web.GetFolderByServerRelativeUrl(ctx.Web.ServerRelativeUrl + documentLibName + "/" + rootFolderName + "/" + subFolderName);
+            ctx.Load(targetFolder);
+            ctx.ExecuteQuery();
+
+            FileCreationInformation createFile = new FileCreationInformation();
+            createFile.Url = $"{fileName}.txt";
+            //use byte array to set content of the file
+            string somestring = "hello there";
+            byte[] toBytes = Encoding.ASCII.GetBytes(somestring);
+
+            createFile.Content = toBytes;
+
+            Microsoft.SharePoint.Client.File newFile = targetFolder.Files.Add(createFile);
+            ctx.Load(newFile);
+            await ctx.ExecuteQueryAsync();
+
+            //UPDATE FIELD CITIES
+            ListItem item = newFile.ListItemAllFields;
+
+            string fieldValue = "-1;";
+            int count = 0;
+            foreach (string city in cities)
+            {
+                if (count != 0)
+                {
+                    fieldValue += ";#-1;";
+                }
+                if (city == "Ho Chi Minh")
+                {
+                    fieldValue += "#Ho Chi Minh|90dd8af9-e9f0-4f6e-ac57-68200c8ea34c";
+                }
+                else if (city == "Stockholm")
+                {
+                    fieldValue += "#Stockholm|f50c5a60-1411-447d-81ca-4242f11d5380";
+                }
+                count++;
+            }
+
+            Field field = ctx.Web.Fields.GetByInternalNameOrTitle("cities");
+            TaxonomyField txField = ctx.CastTo<TaxonomyField>(field);
+            TaxonomyFieldValueCollection termValue = new TaxonomyFieldValueCollection(
+                ctx,
+                fieldValue,
+                txField);
+            txField.SetFieldValueByValueCollection(item, termValue);
+            item.Update();
+            ctx.Load(item);
+            await ctx.ExecuteQueryAsync();
+
+            item.Update();
+            await ctx.ExecuteQueryAsync();
+        }
+        private static async Task CAMLQueryWithWhere(ClientContext ctx, string listName, string folderLv1, string folderLv2)
+        {
+            Microsoft.SharePoint.Client.Folder targetFolder = ctx.Web.GetFolderByServerRelativeUrl(ctx.Web.ServerRelativeUrl + listName + "/" + folderLv1 + "/" + folderLv2);
+            ctx.Load(targetFolder);
+            ctx.ExecuteQuery();
+
+            List list = ctx.Web.Lists.GetByTitle(listName);
+            ctx.Load(list);
+            ctx.ExecuteQuery();
+
+            var results = new Dictionary<string, IEnumerable<Microsoft.SharePoint.Client.File>>();
+            CamlQuery query = new CamlQuery();
+            query.ViewXml = @"<View Scope='RecursiveAll'>
+                                <Query>
+                                    <Where>
+                                        <Eq>
+                                            <FieldRef Name='cities' />
+                                            <Value Type='Text'>Stockholm</Value>
+                                        </Eq>
+                                    </Where>
+                                </Query>
+                            </View>";
+            // execute the query
+
+            query.FolderServerRelativeUrl = targetFolder.ServerRelativeUrl;
+            ListItemCollection listItems = list.GetItems(query);
+
+            ctx.Load(listItems, icol => icol.Include(i => i.File));
+            results[list.Title] = listItems.Select(i => i.File);
+            await ctx.ExecuteQueryAsync();
+
+            foreach (var result in results)
+            {
+                foreach (var file in result.Value)
+                {
+
+                    Console.WriteLine("File: {0}", file.Name);
+                }
+            }
+        }
+        private static async Task CreateFileInDocumnetLibByUpload(ClientContext ctx, string documentLibName, string rootFolderName, string subFolderName, string folderUploadUrl)
+        {
+            Microsoft.SharePoint.Client.Folder targetFolder = ctx.Web.GetFolderByServerRelativeUrl(ctx.Web.ServerRelativeUrl + documentLibName + "/" + rootFolderName + "/" + subFolderName);
+            ctx.Load(targetFolder);
+            ctx.ExecuteQuery();
+
+            FileCreationInformation createFile = new FileCreationInformation();
+            createFile.Content = System.IO.File.ReadAllBytes(folderUploadUrl);
+            createFile.Overwrite = true;
+            createFile.Url = Path.GetFileName(folderUploadUrl)
+;
+            Microsoft.SharePoint.Client.File newFile = targetFolder.Files.Add(createFile);
+            ctx.Load(newFile);
+            await ctx.ExecuteQueryAsync();
+        }
     }
 }
