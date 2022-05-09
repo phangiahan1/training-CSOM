@@ -178,7 +178,12 @@ namespace ConsoleCSOM
                      */
                     //[4.5] tìm hiểu về function EnsureUser và cách hoạt động
                     /*
-                     * TODO...
+                     * Công dụng: Kiểm tra tên đăng nhập/email có hợp lệ hay không.
+                     *              Nếu tồn tại nó sẽ lấy thông tin người dùng add vô User Information List
+                     *              Ta có thể dùng phương thức này để lấy User từ những thông tin người dùng cung cấp
+                     * Input: string Name or Email
+                     * Output: User (nếu tồn tại)
+                     * 
                      */
 
                     //await CreateSiteFieldTypeText(ctx, "nhap", "nhap", groupName);
