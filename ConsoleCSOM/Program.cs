@@ -127,13 +127,17 @@ namespace ConsoleCSOM
                     //await CreateListItem(ctx, LIST_NAME, "cau 3.3 item 5", new List<string> { "Stockholm", "Ho Chi Minh" });
 
                     //[3.4] Create new List type Document lib name “Document Test” add content type “CSOM Test content type” to this list.
+                    string DOCUMENT_LIST_NAME = "Document Test";
                     //await CreateDocumentLib(ctx, "Document Test", "Document Test");
                     //await AddContentTypeToList(ctx, "CSOM Test content type", "Document Test");
 
                     //[3.5]Create Folder “Folder 1” in root of list “Document Test” then create “Folder 2” inside “Folder 1”,
                     //Create 3 list items in “Folder 2” with value “Folder test” in field “about”. Create 2 flies in “Folder 2”
                     //with value “Stockholm” in field “cities”.
-                    //TODO...
+                    //await CreateFolderInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1");
+                    //await CreateSubFolderDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2");
+                    //await CreateSubFolderDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "Folder test");
+                    
 
                     //[3.6] Write CAML get all list item just in “Folder 2” and have value “Stockholm” in “cities” field
                     //TODO...
@@ -771,5 +775,112 @@ namespace ConsoleCSOM
             // Execute the query to the server.
             await ctx.ExecuteQueryAsync();
         }
+        private static async Task CreateFolderInDocumnetLib(ClientContext ctx, string documentLibName, string folderName)
+        {
+            List list = ctx.Web.Lists.GetByTitle(documentLibName); 
+            list.EnableFolderCreation = true;
+            list.Update();
+            await ctx.ExecuteQueryAsync();
+
+            //To create the folder
+            ListItemCreationInformation itemCreateInfo = new ListItemCreationInformation();
+
+            itemCreateInfo.UnderlyingObjectType = FileSystemObjectType.Folder;
+            itemCreateInfo.LeafName = folderName;
+
+            ListItem newItem = list.AddItem(itemCreateInfo);
+            newItem["Title"] = folderName;
+            newItem.Update();
+            ctx.ExecuteQuery();
+        }
+        private static async Task CreateSubFolderDocumnetLib(ClientContext ctx, string documentLibName, string rootFolderName, string folderName)
+        {
+            List list = ctx.Web.Lists.GetByTitle(documentLibName);
+            list.EnableFolderCreation = true;
+            list.Update();
+            await ctx.ExecuteQueryAsync();
+
+            //To create the folder
+            ListItemCreationInformation itemCreateInfo = new ListItemCreationInformation();
+
+            itemCreateInfo.UnderlyingObjectType = FileSystemObjectType.Folder;
+            itemCreateInfo.LeafName = folderName;
+
+            FolderCollection folders = list.RootFolder.Folders;
+            ctx.Load(folders);
+            ctx.ExecuteQuery();
+            foreach (Microsoft.SharePoint.Client.Folder folder in folders)
+            {
+                Console.WriteLine(folder.Name);
+
+                if (folder.Name == rootFolderName)
+                {
+                    folder.Folders.Add(folderName);
+                }
+            }
+            await ctx.ExecuteQueryAsync();
+
+        }
+        private static async Task CreateSubFolderDocumnetLib(ClientContext ctx, string documentLibName, string rootFolderName, string subFolderName, string folderName)
+        {
+            List list = ctx.Web.Lists.GetByTitle(documentLibName);
+            list.EnableFolderCreation = true;
+            list.Update();
+            await ctx.ExecuteQueryAsync();
+
+            FolderCollection folders = list.RootFolder.Folders;
+            ctx.Load(folders);
+            ctx.ExecuteQuery();
+            foreach (Microsoft.SharePoint.Client.Folder folder in folders)
+            {
+                if (folder.Name == rootFolderName)
+                {
+                    FolderCollection folders1 = folder.Folders;
+                    ctx.Load(folders1);
+                    await ctx.ExecuteQueryAsync();
+                    foreach (Microsoft.SharePoint.Client.Folder folder1 in folders1)
+                    {
+                        if (folder1.Name == subFolderName)
+                        {
+                            Console.WriteLine(folder.Name + "/" + folder1.Name);
+                            folder1.Folders.Add(folderName);
+                            await ctx.ExecuteQueryAsync();
+                            //ListItem listItem = folder1.ListItemAllFields;
+                            //listItem["about"] = "test";
+                            //listItem.Update();
+                            //await ctx.ExecuteQueryAsync();
+                            FolderCollection folders2 = folder1.Folders;
+                            ctx.Load(folders2);
+                            await ctx.ExecuteQueryAsync();
+                            foreach (Microsoft.SharePoint.Client.Folder folder2 in folders2)
+                            {
+                                if (folder2.Name == folderName)
+                                {
+                                    Console.WriteLine(folder.Name + "/" + folder1.Name + "/" + folder2.Name);
+                                    ListItem listItem = folder2.ListItemAllFields;
+                                    listItem["about"] = "test";
+                                    listItem.Update();
+                                    await ctx.ExecuteQueryAsync();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        private static async Task Test(ClientContext ctx)
+        {
+            Microsoft.SharePoint.Client.Folder targetFolder = ctx.Web.GetFolderByServerRelativeUrl(ctx.Web.ServerRelativeUrl + "Document Test/Folder 1/Folder 2");
+            ctx.Load(targetFolder);
+            ctx.ExecuteQuery();
+
+            Microsoft.SharePoint.Client.Folder newFolder = targetFolder.Folders.Add("Folder Test 22");
+            ListItem item = newFolder.ListItemAllFields;
+            item["about"] = "Folder Test";
+            item.Update();
+            await ctx.ExecuteQueryAsync();
+            
+        }
+
     }
 }
