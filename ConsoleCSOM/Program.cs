@@ -38,10 +38,12 @@ namespace ConsoleCSOM
                     Console.WriteLine($"Site {ctx.Web.Title}");
 
                     //[1.1] Using CSOM create a list name "CSOM Test"
-                    //await CreateList(ctx, "CSOM Test", "using CSOM create a list");
+                    //await CreateList(ctx, LIST_NAME, "using CSOM create a list");
 
                     string termGroupName = "city";
                     string termSetName = "city-han";
+                    string HO_CHI_MINH = "Ho Chi Minh";
+                    string STOCKHOLM = "Stockholm";
 
                     //[1.2] Create term set "city-han" in dev tenant
                     //await CreateTermSet(ctx, termGroupName, termSetName);
@@ -60,6 +62,7 @@ namespace ConsoleCSOM
                     //      add fields "about" and "city" to this.
                     string ContentTypeId = "0x0101009189AB5D3D2647B580F011DA2F356FB2";
                     string ContentTypeGroupName = "CSOM city projects Content Types";
+                    string ContentTypeName = "CSOM Test content type";
                     //await CreateContentType(ctx, "CSOM Test content type", ContentTypeId, ContentTypeGroupName);
 
                     //await AddContentTypeToList(ctx, "CSOM Test content type", "CSOM Test");
@@ -71,19 +74,21 @@ namespace ConsoleCSOM
                     //await SetDefaultContentType(ctx, "CSOM Test content type", "CSOM Test");
 
                     //[1.7] Create 5 list items to list with some value  in field "about" and "city"
-                    //await CreateListItem(ctx, "CSOM Test", "Pham Thi Bich Tram", "Ho Chi Minh");
-                    //await CreateListItem(ctx, "CSOM Test", "Trinh Gia Dinh", "Stockholm");
-                    //await CreateListItem(ctx, "CSOM Test", "Xa Thi Man", "");
+                    //await CreateListItem(ctx, LIST_NAME, "Duong Duy Tan", "Ho Chi Minh");
+                    //await CreateListItem(ctx, LIST_NAME, "Duong Tran Khanh Van", "Stockholm");
+                    //await CreateListItem(ctx, LIST_NAME, "Phan Tu Hai", "");
+                    //await CreateListItem(ctx, LIST_NAME, "Vo Thi Ngoc Mai", "Ho Chi Minh");
+                    //await CreateListItem(ctx, LIST_NAME, "Phan Gia Hân", "Ho Chi Minh");
 
                     //[1.8] Update site field "about" set default value for it to"about default" then create 2 new list items
-                    //await UpdateDefaultValueSiteFieldTypeTextInList(ctx, "CSOM Test", "about", "about default");
-                    //await CreateListItem(ctx, "CSOM Test", null, "");
-                    //await CreateListItem(ctx, "CSOM Test", "Not null", "");
+                    //await UpdateDefaultValueSiteFieldTypeTextInList(ctx, LIST_NAME, "about", "about default");
+                    //await CreateListItem(ctx, LIST_NAME, null, "");
+                    //await CreateListItem(ctx, LIST_NAME, "Not null", "");
 
                     //[1.9] Update site field "city" set default value for it to"Ho Chi Minh" then create 2 new list items
-                    //await UpdateDefaultValueSiteFieldTypeTaxonomy(ctx, "CSOM Test", "city", "Ho Chi Minh");
-                    //await CreateListItem(ctx, "CSOM Test", "Cau 1.9", null);
-                    //await CreateListItem(ctx, "CSOM Test", null, null);
+                    //await UpdateDefaultValueSiteFieldTypeTaxonomy(ctx, LIST_NAME, "city", HO_CHI_MINH);
+                    //await CreateListItem(ctx, LIST_NAME, "Cau 1.9", null);
+                    //await CreateListItem(ctx, LIST_NAME, null, null);
 
                     //[2.1] Write CAML query to get list items where field “about” is not “about default”
                     //////Eq Equals
@@ -96,22 +101,23 @@ namespace ConsoleCSOM
                     //////BeginsWith Begins with
                     //////Contains Contains
 
-                    //await CAMLQueryWithWhere(ctx, "CSOM Test", "about", "Text", "Neq", "about default");
+                    //await CAMLQueryWithWhere(ctx, LIST_NAME, "about", "Text", "Neq", "about default");
 
                     //[2.2] Create List View by CSOM order item newest in top and only show list item where “city” field has value “Ho Chi Minh”,
                     //View Fields: Id, Name, City, About
 
-                    //await CreateListViewWithOrderNewestAndWhereCityInHoChiMinh(ctx, "CSOM Test");
-
+                    //string NameViewWithOrderNewestAndWhereCityInHoChiMinh = "View With Order And City Is HCM";
+                    //await CreateListViewWithOrderNewestAndWhereCityInHoChiMinh(ctx, LIST_NAME, NameViewWithOrderNewestAndWhereCityInHoChiMinh);
 
                     //[2.3] Write function update list items in batch, try to update 2 items every time and update field “about” which have value
                     //“about default” to “Update script”. (CAML)
 
-                    //await CAMLQueryUpdateMutiListItems(ctx, "CSOM Test", "about", "Text", "about default", "Update script");
+                    //await CAMLQueryUpdateMutiListItems(ctx, LIST_NAME, "about", "Text", "Update script", "about default");
+                    //await CAMLQueryUpdateMutiListItems(ctx, LIST_NAME, "about", "Text", "about default", "Update script");
 
                     //[2.4] Create new field “author” type people in list “CSOM Test” then migrate all list items to set user admin to field “CSOM Test Author”
 
-                    //await CreateSiteFieldPeopleInList(ctx, "CSOM Test", "author", "author", groupName);
+                    //await CreateSiteFieldPeopleInList(ctx, LIST_NAME, "author", "author", groupName);
                     //await MigrateAllListItemsToSetUserAdmin(ctx, LIST_NAME);
 
                     //[3.1] Create Taxonomy Field which allow multi values, with name “cities” map to your termset.
@@ -122,37 +128,33 @@ namespace ConsoleCSOM
                     //await AddFieldToContentType(ctx, "cities", ContentTypeId);
 
                     //[3.3] Add 3 list item to list “CSOM test” and set multi value to field “cities” 
-                    List<string> citiesList = new List<string>();
-                    citiesList.Add("Ho Chi Minh");
-                    citiesList.Add("Stockholm");
-                    //await CreateListItem(ctx, LIST_NAME, "cau 3.3 item 1", citiesList);
-                    //await CreateListItem(ctx, LIST_NAME, "cau 3.3 item 2", new List<string>{ "Ho Chi Minh"} );
-                    //await CreateListItem(ctx, LIST_NAME, "cau 3.3 item 3", new List<string> { "Stockholm" });
-                    //await CreateListItem(ctx, LIST_NAME, "cau 3.3 item 4", new List<string> { "Ho Chi Minh", "Stockholm" });
-                    //await CreateListItem(ctx, LIST_NAME, "cau 3.3 item 5", new List<string> { "Stockholm", "Ho Chi Minh" });
+                    //await CreateListItem(ctx, LIST_NAME, DateTime.Today.ToString(), null ,new List<string> { HO_CHI_MINH });
+                    //await CreateListItem(ctx, LIST_NAME, DateTime.Today.ToString(), STOCKHOLM,new List<string> { STOCKHOLM });
+                    //await CreateListItem(ctx, LIST_NAME, DateTime.Today.ToString(), STOCKHOLM,new List<string> { HO_CHI_MINH, STOCKHOLM });
+                    //await CreateListItem(ctx, LIST_NAME, DateTime.Today.ToString(), HO_CHI_MINH,new List<string> { STOCKHOLM, HO_CHI_MINH });
 
                     //[3.4] Create new List type Document lib name “Document Test” add content type “CSOM Test content type” to this list.
                     string DOCUMENT_LIST_NAME = "Document Test";
-                    //await CreateDocumentLib(ctx, "Document Test", "Document Test");
-                    //await AddContentTypeToList(ctx, "CSOM Test content type", "Document Test");
+                    //await CreateDocumentLib(ctx, DOCUMENT_LIST_NAME, "About Document Test");
+                    //await AddContentTypeToList(ctx, ContentTypeName, DOCUMENT_LIST_NAME);
 
                     //[3.5]Create Folder “Folder 1” in root of list “Document Test”
                     //Create “Folder 2” inside “Folder 1”,
                     //Create 3 list items in “Folder 2” with value “Folder test” in field “about”.
                     //Create 2 flies in “Folder 2” with value “Stockholm” in field “cities”.
-                    //await CreateFolderInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1");
 
+                    //await CreateFolderInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1");
                     //await CreateFolderInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2");
 
                     //await CreateFolderInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "Folder test");
                     //await CreateFolderInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "Folder test 1");
                     //await CreateFolderInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "Folder test 2");
 
-                    //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test", new List<string> { "Stockholm" });
-                    //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 1", new List<string> { "Stockholm" });
-                    //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 3", new List<string> { "Ho Chi Minh" });
-                    //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 4", new List<string> { "Ho Chi Minh", "Stockholm" });
-                    //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 5", new List<string> { "Stockholm" });
+                    //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test", new List<string> { STOCKHOLM });
+                    //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 1", new List<string> { STOCKHOLM });
+                    //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 3", new List<string> { HO_CHI_MINH });
+                    //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 4", new List<string> { HO_CHI_MINH, STOCKHOLM });
+                    //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 5", new List<string> { STOCKHOLM });
 
                     //[3.6] Write CAML get all list item just in “Folder 2” and have value “Stockholm” in “cities” field
                     //await CAMLQueryWithWhere(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2");
@@ -162,14 +164,14 @@ namespace ConsoleCSOM
 
                     //[4.1] Create View “Folders” in List “Document Test” which only show folder structure, and set this view as default
                     //await TestGetAllFolder(ctx, DOCUMENT_LIST_NAME);
-                    string VIEW_NAME = "All Folders";
-                    //await CreateListViewFolderOnly(ctx, DOCUMENT_LIST_NAME, VIEW_NAME);
-                    //await SetCurrentViewAsDefault(ctx, DOCUMENT_LIST_NAME, VIEW_NAME);
+                    string VIEW_NAME_ALL_FOLDERS = "All Folders";
+                    //await CreateListViewFolderOnly(ctx, DOCUMENT_LIST_NAME, VIEW_NAME_ALL_FOLDERS);
+                    //await SetCurrentViewAsDefault(ctx, DOCUMENT_LIST_NAME, VIEW_NAME_ALL_FOLDERS);
 
                     //[4.2] Write code to load User from user email or name
 
+                    //await LoadUserFromEmailOrName(ctx, "gdfgesgfsdfs");
                     //await LoadUserFromEmailOrName(ctx, "Hân Phan Gia");
-                    await LoadUserFromEmailOrName(ctx, "gdfgesgfsdfs");
                     //await LoadUserFromEmailOrName(ctx, "GiaHan2206@y48hl.onmicrosoft.com");
 
                     //[4.4] tìm hiểu về TaxonomyHiddenList
@@ -179,8 +181,8 @@ namespace ConsoleCSOM
                      *          Danh sách này được sử dụng để lưu trữ các thuật ngữ phân loại
                      *          SharePoint sử dụng danh sách này để không cần truy vấn dịch vụ dữ liệu meta được quản lý mọi lúc.
                      *          Khi chúng ta sử dụng thuật ngữ Phân loại, một mục sẽ được tạo trong danh sách này. Id của mục này là WSSID. 
-                     *              WSSID này thuộc loại Counter và có thể được sử dụng cho mục đích truy vấn.‎
-                     *          Đối với các thuật ngữ phân loại vẫn chưa được sử dụng trong trang web, chúng tôi sẽ không tìm thấy mục cho nó trong danh sách này. Vì vậy, không có WSSID cho thuật ngữ đó. ‎
+                     *              WSSID này thuộc loại Counter và có thể được sử dụng cho mục đích truy vấn
+                     *          Đối với các thuật ngữ phân loại vẫn chưa được sử dụng trong trang web, chúng tôi sẽ không tìm thấy mục cho nó trong danh sách này. Vì vậy, không có WSSID cho thuật ngữ đó. 
                      * Công dụng:
                      * URL: https://y48hl.sharepoint.com/sites/ITcompany/Lists/TaxonomyHiddenList/AllItems.aspx
                      * Chưa đọc: https://andrewwburns.com/2014/01/17/what-happens-with-a-large-taxonomyhiddenlist/
@@ -192,15 +194,7 @@ namespace ConsoleCSOM
                      *              Ta có thể dùng phương thức này để lấy User từ những thông tin người dùng cung cấp
                      * Input: string Name or Email
                      * Output: User (nếu tồn tại)
-                     * 
                      */
-
-                    //await CreateSiteFieldTypeText(ctx, "nhap", "nhap", groupName);
-                    //await AddFieldToContentType(ctx, "nhap", "0x0100BDD5E43587AF469CA722FD068065DF5D");
-                    //await AddContentTypeToList(ctx, "CSOM Test content type111", "Nhap");
-                    //await SetDefaultContentType(ctx, "CSOM Test content type111", "Nhap");
-                    //await CreateSiteFieldTypeText(ctx, "nhap1", "nhap1", groupName);
-                    //await AddFieldToContentType(ctx, "nhap1", "0x0100BDD5E43587AF469CA722FD068065DF5D");
                 }
                 Console.WriteLine($"Press Any Key To Stop!");
                 Console.ReadKey();
@@ -248,6 +242,10 @@ namespace ConsoleCSOM
             List newList = ctx.Web.Lists.Add(creationInfo);
             ctx.Load(newList);
             // Execute the query to the server.
+            await ctx.ExecuteQueryAsync();
+
+            newList.ContentTypesEnabled = true;
+            newList.Update();
             await ctx.ExecuteQueryAsync();
         }
         private static async Task CreateTermSet(ClientContext ctx, string termGroupName, string termSetName)
@@ -417,11 +415,13 @@ namespace ConsoleCSOM
             }
             else
             {
-                // If user input wrong set default city is Ho Chi Minh
-                fieldValue = "Ho Chi Minh|90dd8af9-e9f0-4f6e-ac57-68200c8ea34c";
+                fieldValue = null;
             }
-            UpdateTaxonomyField(ctx, oList, oListItem, "city", fieldValue);
 
+            if(fieldValue != null)
+            {
+                UpdateTaxonomyField(ctx, oList, oListItem, "city", fieldValue);
+            }
             oListItem.Update();
 
             await ctx.ExecuteQueryAsync();
@@ -529,7 +529,7 @@ namespace ConsoleCSOM
                 Console.WriteLine("about: {0}  - city: {1}", oListItem["about"], taxFieldValue.Label);
             }
         }
-        private static async Task CreateListViewWithOrderNewestAndWhereCityInHoChiMinh(ClientContext ctx, string listName)
+        private static async Task CreateListViewWithOrderNewestAndWhereCityInHoChiMinh(ClientContext ctx, string listName, string title)
         {
             List targetList = ctx.Web.Lists.GetByTitle(listName);
 
@@ -537,7 +537,7 @@ namespace ConsoleCSOM
             ctx.Load(viewCollection);
 
             ViewCreationInformation viewCreationInformation = new ViewCreationInformation();
-            viewCreationInformation.Title = "View With Order And City Is HCM";
+            viewCreationInformation.Title = title;
 
             // Specify type of the view. Below are the options
 
@@ -568,7 +568,7 @@ namespace ConsoleCSOM
             ctx.ExecuteQuery();
 
             // Code to update the display name for the view.
-            listView.Title = "View With Order And City Is HCM";
+            listView.Title = title;
 
             // You can optionally specify Aggregation: Field references for totals columns or calculated columns
             //listView.Aggregations = "<FieldRef Name='Title' Type='COUNT'/>";
@@ -694,7 +694,7 @@ namespace ConsoleCSOM
             ctx.Load(listItem);
             ctx.ExecuteQuery();
         }
-        private static async Task CreateListItem(ClientContext ctx, string listName, string about, List<string> cities)
+        private static async Task CreateListItem(ClientContext ctx, string listName, string about, string city, List<string> cities)
         {
             List oList = ctx.Web.Lists.GetByTitle(listName);
 
@@ -707,24 +707,42 @@ namespace ConsoleCSOM
             }
             string fieldValue = "-1;";
             int count = 0;
-            foreach (string city in cities)
+            foreach (string city1 in cities)
             {
                 if (count != 0)
                 {
                     fieldValue += ";#-1;";
                 }
-                if (city == "Ho Chi Minh")
+                if (city1 == "Ho Chi Minh")
                 {
                     fieldValue += "#Ho Chi Minh|90dd8af9-e9f0-4f6e-ac57-68200c8ea34c";
                 }
-                else if (city == "Stockholm")
+                else if (city1 == "Stockholm")
                 {
                     fieldValue += "#Stockholm|f50c5a60-1411-447d-81ca-4242f11d5380";
                 }
                 count++;
             }
-            Console.WriteLine(fieldValue);
             UpdateTaxonomyFieldMulti(ctx, oList, oListItem, "cities", fieldValue);
+
+            string fieldValue1;
+            if (city == "Ho Chi Minh")
+            {
+                fieldValue1 = "Ho Chi Minh|90dd8af9-e9f0-4f6e-ac57-68200c8ea34c";
+            }
+            else if (city == "Stockholm")
+            {
+                fieldValue1 = "Stockholm|f50c5a60-1411-447d-81ca-4242f11d5380";
+            }
+            else
+            {
+                fieldValue1 = null;
+            }
+
+            if (fieldValue1 != null)
+            {
+                UpdateTaxonomyField(ctx, oList, oListItem, "city", fieldValue1);
+            }
             oListItem.Update();
             await ctx.ExecuteQueryAsync();
 
@@ -741,6 +759,10 @@ namespace ConsoleCSOM
             List newList = ctx.Web.Lists.Add(creationInfo);
             ctx.Load(newList);
             // Execute the query to the server.
+            await ctx.ExecuteQueryAsync();
+
+            newList.ContentTypesEnabled = true;
+            newList.Update();
             await ctx.ExecuteQueryAsync();
         }
         private static async Task CreateFolderInDocumnetLib(ClientContext ctx, string documentLibName, string folderName)
