@@ -177,15 +177,14 @@ namespace ConsoleCSOM
                     //[4.4] tìm hiểu về TaxonomyHiddenList
                     /*
                      * Mô tả: danh sách ẩn trên web gốc.
-                     *          Danh sách này chứa tất cả các thuật ngữ và từ khóa được sử dụng cho tuyển tập trang
-                     *          Danh sách này được sử dụng để lưu trữ các thuật ngữ phân loại
-                     *          SharePoint sử dụng danh sách này để không cần truy vấn dịch vụ dữ liệu meta được quản lý mọi lúc.
-                     *          Khi chúng ta sử dụng thuật ngữ Phân loại, một mục sẽ được tạo trong danh sách này. Id của mục này là WSSID. 
+                     *          DS chứa all thuật ngữ và từ khóa được sử dụng site
+                     *          DS được dùng để lưu trữ các thuật ngữ phân loại
+                     *          SharePoint dùng DS này để không cần truy vấn mà vẫn lấy đc dữ liệu meta
+                     *          Khi chúng ta sử dụng term, một mục sẽ được tạo trong danh sách này. Id của mục này là WSSID. 
                      *              WSSID này thuộc loại Counter và có thể được sử dụng cho mục đích truy vấn
-                     *          Đối với các thuật ngữ phân loại vẫn chưa được sử dụng trong trang web, chúng tôi sẽ không tìm thấy mục cho nó trong danh sách này. Vì vậy, không có WSSID cho thuật ngữ đó. 
+                     *          Đối với các term vẫn chưa được sử dụng trong trang web, không có WSSID cho thuật ngữ đó. 
                      * Công dụng:
                      * URL: https://y48hl.sharepoint.com/sites/ITcompany/Lists/TaxonomyHiddenList/AllItems.aspx
-                     * Chưa đọc: https://andrewwburns.com/2014/01/17/what-happens-with-a-large-taxonomyhiddenlist/
                      */
                     //[4.5] tìm hiểu về function EnsureUser và cách hoạt động
                     /*
