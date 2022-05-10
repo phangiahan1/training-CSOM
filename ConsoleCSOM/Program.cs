@@ -155,6 +155,7 @@ namespace ConsoleCSOM
                     //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 3", new List<string> { HO_CHI_MINH });
                     //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 4", new List<string> { HO_CHI_MINH, STOCKHOLM });
                     //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 5", new List<string> { STOCKHOLM });
+                    //await CreateFileInDocumnetLibWithCT(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 6", new List<string> { STOCKHOLM });
 
                     //[3.6] Write CAML get all list item just in “Folder 2” and have value “Stockholm” in “cities” field
                     //await CAMLQueryWithWhere(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2");
@@ -924,6 +925,64 @@ namespace ConsoleCSOM
             item.Update();
             await ctx.ExecuteQueryAsync();
         }
+        private static async Task CreateFileInDocumnetLibWithCT(ClientContext ctx, string documentLibName, string rootFolderName, string subFolderName, string fileName, List<string> cities)
+        {
+            Microsoft.SharePoint.Client.Folder targetFolder = ctx.Web.GetFolderByServerRelativeUrl(ctx.Web.ServerRelativeUrl + documentLibName + "/" + rootFolderName + "/" + subFolderName);
+            ctx.Load(targetFolder);
+            ctx.ExecuteQuery();
+
+            FileCreationInformation createFile = new FileCreationInformation();
+            createFile.Url = $"{fileName}.txt";
+            //use byte array to set content of the file
+            string somestring = "hello there";
+            byte[] toBytes = Encoding.ASCII.GetBytes(somestring);
+
+            createFile.Content = toBytes;
+
+            Microsoft.SharePoint.Client.File newFile = targetFolder.Files.Add(createFile);
+            ctx.Load(newFile);
+            await ctx.ExecuteQueryAsync();
+
+            //UPDATE FIELD CITIES
+            ListItem item = newFile.ListItemAllFields;
+
+            string fieldValue = "-1;";
+            int count = 0;
+            foreach (string city in cities)
+            {
+                if (count != 0)
+                {
+                    fieldValue += ";#-1;";
+                }
+                if (city == "Ho Chi Minh")
+                {
+                    fieldValue += "#Ho Chi Minh|90dd8af9-e9f0-4f6e-ac57-68200c8ea34c";
+                }
+                else if (city == "Stockholm")
+                {
+                    fieldValue += "#Stockholm|f50c5a60-1411-447d-81ca-4242f11d5380";
+                }
+                count++;
+            }
+
+            Field field = ctx.Web.Fields.GetByInternalNameOrTitle("cities");
+            TaxonomyField txField = ctx.CastTo<TaxonomyField>(field);
+            TaxonomyFieldValueCollection termValue = new TaxonomyFieldValueCollection(
+                ctx,
+                fieldValue,
+                txField);
+            txField.SetFieldValueByValueCollection(item, termValue);
+
+            item["ContentTypeId"] = "0x0101009189AB5D3D2647B580F011DA2F356FB2";
+
+            item.Update();
+            ctx.Load(item);
+            await ctx.ExecuteQueryAsync();
+
+            item.Update();
+            await ctx.ExecuteQueryAsync();
+        }
+
         private static async Task CAMLQueryWithWhere(ClientContext ctx, string listName, string folderLv1, string folderLv2)
         {
             Microsoft.SharePoint.Client.Folder targetFolder = ctx.Web.GetFolderByServerRelativeUrl(ctx.Web.ServerRelativeUrl + listName + "/" + folderLv1 + "/" + folderLv2);
