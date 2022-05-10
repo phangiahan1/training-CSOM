@@ -156,6 +156,7 @@ namespace ConsoleCSOM
                     //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 4", new List<string> { HO_CHI_MINH, STOCKHOLM });
                     //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 5", new List<string> { STOCKHOLM });
                     //await CreateFileInDocumnetLibWithCT(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 6", new List<string> { STOCKHOLM });
+                    await CreateFileInDocumnetLibWithCT(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 7", new List<string> { STOCKHOLM });
 
                     //[3.6] Write CAML get all list item just in “Folder 2” and have value “Stockholm” in “cities” field
                     //await CAMLQueryWithWhere(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2");
@@ -974,7 +975,6 @@ namespace ConsoleCSOM
             txField.SetFieldValueByValueCollection(item, termValue);
 
             item["ContentTypeId"] = "0x0101009189AB5D3D2647B580F011DA2F356FB2";
-
             item.Update();
             ctx.Load(item);
             await ctx.ExecuteQueryAsync();
