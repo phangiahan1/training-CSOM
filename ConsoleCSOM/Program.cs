@@ -60,7 +60,9 @@ namespace ConsoleCSOM
                     //[1.5] Create site content type "CSOM Test content type"
                     //      => add this to "CSOM test"
                     //      add fields "about" and "city" to this.
+                    //string ContentTypeName = "CSOM Test content type";
                     string ContentTypeId = "0x0101009189AB5D3D2647B580F011DA2F356FB2";
+                    //string ContentTypeId = "0x0101006754AB5D3D2647B580F011DA2F356FB9";
                     string ContentTypeGroupName = "CSOM city projects Content Types";
                     string ContentTypeName = "CSOM Test content type";
 
@@ -81,7 +83,7 @@ namespace ConsoleCSOM
                     //await CreateListItem(ctx, LIST_NAME, "Phan Gia Hân", STOCKHOLM);
 
                     //[1.8] Update site field "about" set default value for it to"about default" then create 2 new list items
-                    //await UpdateDefaultValueSiteFieldTypeTextInList(ctx, LIST_NAME, "about", "about default");
+                    //await UpdateDefaultValueSiteFieldTypeTextInList(ctx, LIST_NAME, "about", "about default 111");
                     //await CreateListItem(ctx, LIST_NAME, null, "");
                     //await CreateListItem(ctx, LIST_NAME, "Not null", "");
 
@@ -101,19 +103,19 @@ namespace ConsoleCSOM
                     //////BeginsWith Begins with
                     //////Contains Contains
 
-                    //await CAMLQueryWithWhere(ctx, LIST_NAME, "about", "Text", "Neq", "about default");
+                    //await CAMLQueryWithWhere(ctx, LIST_NAME, "about", "Text", "Eq", "about default 111");
 
                     //[2.2] Create List View by CSOM order item newest in top and only show list item where “city” field has value “Ho Chi Minh”,
                     //View Fields: Id, Name, City, About
 
-                    //string NameViewWithOrderNewestAndWhereCityInHoChiMinh = "View With Order And City Is HCM";
+                    string NameViewWithOrderNewestAndWhereCityInHoChiMinh = "View With Order And City Is HCM";
                     //await CreateListViewWithOrderNewestAndWhereCityInHoChiMinh(ctx, LIST_NAME, NameViewWithOrderNewestAndWhereCityInHoChiMinh);
 
                     //[2.3] Write function update list items in batch, try to update 2 items every time and update field “about” which have value
                     //“about default” to “Update script”. (CAML)
 
                     //await CAMLQueryUpdateMutiListItems(ctx, LIST_NAME, "about", "Text", "Update script", "about default");
-                    //await CAMLQueryUpdateMutiListItems(ctx, LIST_NAME, "about", "Text", "about default", "Update script");
+                    //await CAMLQueryUpdateMutiListItems(ctx, LIST_NAME, "about", "Text", "about default 111", "Update script");
 
                     //[2.4] Create new field “author” type people in list “CSOM Test” then migrate all list items to set user admin to field “CSOM Test Author”
 
@@ -128,10 +130,10 @@ namespace ConsoleCSOM
                     //await AddFieldToContentType(ctx, "cities", ContentTypeId);
 
                     //[3.3] Add 3 list item to list “CSOM test” and set multi value to field “cities” 
-                    //await CreateListItem(ctx, LIST_NAME, DateTime.Today.ToString(), null ,new List<string> { HO_CHI_MINH });
-                    //await CreateListItem(ctx, LIST_NAME, DateTime.Today.ToString(), STOCKHOLM,new List<string> { STOCKHOLM });
-                    //await CreateListItem(ctx, LIST_NAME, DateTime.Today.ToString(), STOCKHOLM,new List<string> { HO_CHI_MINH, STOCKHOLM });
-                    //await CreateListItem(ctx, LIST_NAME, DateTime.Today.ToString(), HO_CHI_MINH,new List<string> { STOCKHOLM, HO_CHI_MINH });
+                    //await CreateListItem(ctx, LIST_NAME, DateTime.Today.ToString(), null, new List<string> { HO_CHI_MINH });
+                    //await CreateListItem(ctx, LIST_NAME, DateTime.Today.ToString(), STOCKHOLM, new List<string> { STOCKHOLM });
+                    //await CreateListItem(ctx, LIST_NAME, DateTime.Today.ToString(), STOCKHOLM, new List<string> { HO_CHI_MINH, STOCKHOLM });
+                    //await CreateListItem(ctx, LIST_NAME, DateTime.Today.ToString(), HO_CHI_MINH, new List<string> { STOCKHOLM, HO_CHI_MINH });
 
                     //[3.4] Create new List type Document lib name “Document Test” add content type “CSOM Test content type” to this list.
                     string DOCUMENT_LIST_NAME = "Document Test";
@@ -172,9 +174,9 @@ namespace ConsoleCSOM
 
                     //[4.2] Write code to load User from user email or name
 
-                    //await LoadUserFromEmailOrName(ctx, "gdfgesgfsdfs");
-                    //await LoadUserFromEmailOrName(ctx, "Hân Phan Gia");
-                    //await LoadUserFromEmailOrName(ctx, "GiaHan2206@y48hl.onmicrosoft.com");
+                    await LoadUserFromEmailOrName(ctx, "gdfgesgfsdfs");
+                    await LoadUserFromEmailOrName(ctx, "Hân Phan Gia");
+                    await LoadUserFromEmailOrName(ctx, "GiaHan2206@y48hl.onmicrosoft.com");
 
                     //[4.4] tìm hiểu về TaxonomyHiddenList
                     /*
@@ -1013,12 +1015,12 @@ namespace ConsoleCSOM
             ListItemCollection listItems = list.GetItems(query);
 
             ctx.Load(listItems, icol => icol.Include(i => i.File));
-            results[list.Title] = listItems.Select(i => i.File);
+            var a = listItems.Select(i => i.File);
             await ctx.ExecuteQueryAsync();
 
-            foreach (var result in results)
+           // foreach (var result in results)
             {
-                foreach (var file in result.Value)
+                foreach (var file in a)
                 {
 
                     Console.WriteLine("File: {0}", file.Name);
