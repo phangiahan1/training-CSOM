@@ -156,7 +156,7 @@ namespace ConsoleCSOM
                     //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 4", new List<string> { HO_CHI_MINH, STOCKHOLM });
                     //await CreateFileInDocumnetLib(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 5", new List<string> { STOCKHOLM });
                     //await CreateFileInDocumnetLibWithCT(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 6", new List<string> { STOCKHOLM });
-                    await CreateFileInDocumnetLibWithCT(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 7", new List<string> { STOCKHOLM });
+                    //await CreateFileInDocumnetLibWithCT(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2", "File test 7", new List<string> { STOCKHOLM });
 
                     //[3.6] Write CAML get all list item just in “Folder 2” and have value “Stockholm” in “cities” field
                     //await CAMLQueryWithWhere(ctx, DOCUMENT_LIST_NAME, "Folder 1", "Folder 2");
@@ -196,6 +196,8 @@ namespace ConsoleCSOM
                      * Input: string Name or Email
                      * Output: User (nếu tồn tại)
                      */
+
+                    //Console.WriteLine(GetContentTypeByName(ctx, ContentTypeName).Id);
                 }
                 Console.WriteLine($"Press Any Key To Stop!");
                 Console.ReadKey();
@@ -1145,6 +1147,14 @@ namespace ConsoleCSOM
                 Console.WriteLine("Not a valid person");
             }
             Console.ReadLine();
+        }
+        private static ContentType GetContentTypeByName(ClientContext ctx, string contentTypeName)
+        {
+            ContentTypeCollection contentTypes = ctx.Web.ContentTypes;
+            ctx.Load(contentTypes);
+            ctx.ExecuteQuery();
+
+            return Enumerable.FirstOrDefault(contentTypes, ct => ct.Name == contentTypeName);
         }
     }
 }
