@@ -63,22 +63,22 @@ namespace ConsoleCSOM
                     string ContentTypeId = "0x0101009189AB5D3D2647B580F011DA2F356FB2";
                     string ContentTypeGroupName = "CSOM city projects Content Types";
                     string ContentTypeName = "CSOM Test content type";
-                    //await CreateContentType(ctx, "CSOM Test content type", ContentTypeId, ContentTypeGroupName);
 
-                    //await AddContentTypeToList(ctx, "CSOM Test content type", "CSOM Test");
+                    //await CreateContentType(ctx, ContentTypeName, ContentTypeId, ContentTypeGroupName);
+                    //await AddContentTypeToList(ctx, ContentTypeName, LIST_NAME);
 
                     //await AddFieldToContentType(ctx, "about", ContentTypeId);
                     //await AddFieldToContentType(ctx, "city", ContentTypeId);
 
                     //[1.6] In list "CSOM test" set "CSOM Test content type" as default content type
-                    //await SetDefaultContentType(ctx, "CSOM Test content type", "CSOM Test");
+                    //await SetDefaultContentType(ctx, ContentTypeName, LIST_NAME);
 
                     //[1.7] Create 5 list items to list with some value  in field "about" and "city"
-                    //await CreateListItem(ctx, LIST_NAME, "Duong Duy Tan", "Ho Chi Minh");
-                    //await CreateListItem(ctx, LIST_NAME, "Duong Tran Khanh Van", "Stockholm");
-                    //await CreateListItem(ctx, LIST_NAME, "Phan Tu Hai", "");
-                    //await CreateListItem(ctx, LIST_NAME, "Vo Thi Ngoc Mai", "Ho Chi Minh");
-                    //await CreateListItem(ctx, LIST_NAME, "Phan Gia Hân", "Ho Chi Minh");
+                    //await CreateListItem(ctx, LIST_NAME, "Duong Duy Tan", HO_CHI_MINH);
+                    //await CreateListItem(ctx, LIST_NAME, "Duong Tran Khanh Van", STOCKHOLM);
+                    //await CreateListItem(ctx, LIST_NAME, "Phan Tu Hai", null);
+                    //await CreateListItem(ctx, LIST_NAME, "Vo Thi Ngoc Mai", HO_CHI_MINH);
+                    //await CreateListItem(ctx, LIST_NAME, "Phan Gia Hân", STOCKHOLM);
 
                     //[1.8] Update site field "about" set default value for it to"about default" then create 2 new list items
                     //await UpdateDefaultValueSiteFieldTypeTextInList(ctx, LIST_NAME, "about", "about default");
