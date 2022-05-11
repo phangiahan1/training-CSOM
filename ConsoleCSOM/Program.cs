@@ -202,11 +202,7 @@ namespace ConsoleCSOM
                     //Console.WriteLine(GetContentTypeByName(ctx, ContentTypeName).Id);
 
                     // PERMISSION EXERCISE
-                    string GROUP_NAME = "tesst group";
-                    string GROUP_DES = "for testing";
-                    //await CreateGroup(ctx, GROUP_NAME, GROUP_DES);
-                    //await AddUser(ctx, GROUP_NAME, "");
-
+                    
                     //--------Exercise 3 – Permission Inheritance
                     //[3.1]In the Finance and Accounting subsite, go to the List settings of the Accounts custom list and 
                     //stop inheriting permissions.
@@ -229,7 +225,16 @@ namespace ConsoleCSOM
                     //await GetAllGroupPermissionLevel(ctx, SUBSITE_URL);
 
                     //[4.2] Create PerLev "Test Level" in Rootsite with Manage&CreateAlert
-                    await CreatePermissionLevelWithManageAndCreateAlertInRoot(ctx);
+                    //await CreatePermissionLevelWithManageAndCreateAlertInRoot(ctx);
+
+                    //[4.3] 
+                    //[4.4] Create group "Test Group" ==> grant to "Test Level" ==> Add User
+                    string GROUP_NAME = "Test Group";
+                    string GROUP_DES = "for testing";
+                    //await CreateGroup(ctx, GROUP_NAME, GROUP_DES);
+                    await GrantToPermissionLevel(ctx, GROUP_NAME, "Test Level");
+
+                    //await AddUser(ctx, GROUP_NAME, "");
                 }
                 Console.WriteLine($"Press Any Key To Stop!");
                 Console.ReadKey();
@@ -1349,6 +1354,19 @@ namespace ConsoleCSOM
             roleDefinitionCreationInfo.Name = "Test Level";
             roleDefinitionCreationInfo.Description = "create alert and manage list";
             RoleDefinition roleDefinition = ctx.Web.RoleDefinitions.Add(roleDefinitionCreationInfo);
+            await ctx.ExecuteQueryAsync();
+        }
+        private static async Task GrantToPermissionLevel(ClientContext ctx, string groupName, string permissionLevelName)
+        {     
+            RoleDefinitionCollection roleDefinitions= ctx.Web.RoleDefinitions;
+            RoleAssignmentCollection roleAssignments= ctx.Web.RoleAssignments;
+
+            Principal user = ctx.Web.SiteGroups.GetByName(groupName);
+
+            RoleDefinition writeDefinition = ctx.Web.RoleDefinitions.GetByName(permissionLevelName);
+            RoleDefinitionBindingCollection roleDefCollection = new RoleDefinitionBindingCollection(ctx);
+            roleDefCollection.Add(writeDefinition);
+            RoleAssignment newRoleAssignment = ctx.Web.RoleAssignments.Add(user, roleDefCollection);
             await ctx.ExecuteQueryAsync();
         }
     }
