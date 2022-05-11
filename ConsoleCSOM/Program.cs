@@ -174,9 +174,9 @@ namespace ConsoleCSOM
 
                     //[4.2] Write code to load User from user email or name
 
-                    await LoadUserFromEmailOrName(ctx, "gdfgesgfsdfs");
-                    await LoadUserFromEmailOrName(ctx, "Hân Phan Gia");
-                    await LoadUserFromEmailOrName(ctx, "GiaHan2206@y48hl.onmicrosoft.com");
+                    //await LoadUserFromEmailOrName(ctx, "gdfgesgfsdfs");
+                    //await LoadUserFromEmailOrName(ctx, "Hân Phan Gia");
+                    //await LoadUserFromEmailOrName(ctx, "GiaHan2206@y48hl.onmicrosoft.com");
 
                     //[4.4] tìm hiểu về TaxonomyHiddenList
                     /*
@@ -200,6 +200,12 @@ namespace ConsoleCSOM
                      */
 
                     //Console.WriteLine(GetContentTypeByName(ctx, ContentTypeName).Id);
+
+                    // PERMISSION EXERCISE
+                    string GROUP_NAME = "tesst group";
+                    string GROUP_DES = "for testing";
+                    //await CreateGroup(ctx, GROUP_NAME, GROUP_DES);
+                    //await AddUser(ctx, GROUP_NAME, "");
                 }
                 Console.WriteLine($"Press Any Key To Stop!");
                 Console.ReadKey();
@@ -1157,6 +1163,34 @@ namespace ConsoleCSOM
             ctx.ExecuteQuery();
 
             return Enumerable.FirstOrDefault(contentTypes, ct => ct.Name == contentTypeName);
+        }
+        
+        //exercise permission
+        private static async Task CreateGroup(ClientContext ctx, string groupName, string groupDescription)
+        {
+            GroupCollection oGroupCollection = ctx.Web.SiteGroups;
+            // GroupCreationInformation object
+            GroupCreationInformation oGroupCreationInformation = new GroupCreationInformation();
+
+            oGroupCreationInformation.Title = groupName;
+            oGroupCreationInformation.Description = groupDescription;
+
+            Group oGroup = oGroupCollection.Add(oGroupCreationInformation);
+            await ctx.ExecuteQueryAsync();
+        }
+
+        private static async Task AddUser(ClientContext ctx, string groupName, string loginNameOrEmail)
+        {
+            GroupCollection groups = ctx.Web.SiteGroups;
+            Group group = groups.GetByName(groupName); 
+            ctx.Load(group);
+            ctx.ExecuteQuery();
+
+            Console.WriteLine(group.Title);
+
+            User aoUser = ctx.Web.EnsureUser(loginNameOrEmail);
+            User oUser = group.Users.AddUser(aoUser);
+            ctx.ExecuteQuery();
         }
     }
 }
