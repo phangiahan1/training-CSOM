@@ -206,6 +206,30 @@ namespace ConsoleCSOM
                     string GROUP_DES = "for testing";
                     //await CreateGroup(ctx, GROUP_NAME, GROUP_DES);
                     //await AddUser(ctx, GROUP_NAME, "");
+
+                    //--------Exercise 3 – Permission Inheritance
+                    //[3.1]In the Finance and Accounting subsite, go to the List settings of the Accounts custom list and 
+                    //stop inheriting permissions.
+                    //Add another user to the permission list with Design permissions. 
+                    //Note: You may have to refresh the page after you grant permissions
+
+                    string SUBSITE_NAME = "Finance and Accounting";
+                    string SUBSITE_URL = "FinanceAndAccounting";
+                    string SUBSITE_LIST_NAME = "Accounts";
+                    //await CreateSubSite(ctx, SUBSITE_URL, SUBSITE_NAME, "This is subsite");
+                    //await CreateList(ctx, SUBSITE_LIST_NAME, "List in subsite", SUBSITE_NAME);
+                    //await StopInheritingPermission(ctx, SUBSITE_URL, SUBSITE_LIST_NAME, true);
+                    //await AddUserToPermissionList(ctx, SUBSITE_URL, SUBSITE_LIST_NAME, "test1@y48hl.onmicrosoft.com", "Design");
+
+                    //[3.2] re-establish inheritance in list "Accounts".
+                    //await ReEstablishInheritingPermission(ctx, SUBSITE_URL, SUBSITE_LIST_NAME);
+
+                    //--------Exercise 4 – Creating	Permission	Levels	and	Groups
+                    //[4.1] Get all permission group in Subsite "Finance and Accounting"
+                    //await GetAllGroupPermissionLevel(ctx, SUBSITE_URL);
+
+                    //[4.2] Create PerLev "Test Level" in Rootsite with Manage&CreateAlert
+                    await CreatePermissionLevelWithManageAndCreateAlertInRoot(ctx);
                 }
                 Console.WriteLine($"Press Any Key To Stop!");
                 Console.ReadKey();
@@ -214,8 +238,7 @@ namespace ConsoleCSOM
             {
                 Console.WriteLine(ex);
             }
-        }
-
+        }        
         static ClientContext GetContext(ClientContextHelper clientContextHelper)
         {
             var builder = new ConfigurationBuilder().AddJsonFile($"appsettings.json", true, true);
@@ -258,6 +281,37 @@ namespace ConsoleCSOM
             newList.ContentTypesEnabled = true;
             newList.Update();
             await ctx.ExecuteQueryAsync();
+        }
+        private static async Task CreateList(ClientContext ctx, string listName, string description, string subsiteName)
+        {
+            Console.WriteLine("Using CSOM create a list name: " + listName);
+
+            ListCreationInformation creationInfo = new ListCreationInformation();
+            creationInfo.Title = listName;
+            creationInfo.Description = description;
+            creationInfo.TemplateType = (int)ListTemplateType.GenericList; //Custom list
+
+            var subWebs = ctx.Web.Webs;
+            ctx.Load(subWebs);
+            ctx.ExecuteQuery();
+
+            foreach (var subWeb in subWebs)
+            {
+                ctx.Load(subWeb);
+                await ctx.ExecuteQueryAsync();
+                if (subWeb.Title == subsiteName)
+                {
+                    List newList = subWeb.Lists.Add(creationInfo);
+                    ctx.Load(newList);
+                    // Execute the query to the server.
+                    await ctx.ExecuteQueryAsync();
+
+                    newList.ContentTypesEnabled = true;
+                    newList.Update();
+                    await ctx.ExecuteQueryAsync();
+                }
+                
+            }
         }
         private static async Task CreateTermSet(ClientContext ctx, string termGroupName, string termSetName)
         {
@@ -1166,6 +1220,92 @@ namespace ConsoleCSOM
         }
         
         //exercise permission
+        private static async Task CreateSubSite(ClientContext ctx, string subsiteURL, string subsiteTitle, string subsiteDes)
+        {
+            WebCreationInformation oWebCreationInformation = new WebCreationInformation();
+            // This is relative URL of the url provided in context
+            oWebCreationInformation.Url = subsiteURL;
+            oWebCreationInformation.Title = subsiteTitle;
+            oWebCreationInformation.Description = subsiteDes;
+
+            // This will inherit permission from parent site
+            oWebCreationInformation.UseSamePermissionsAsParentSite = true;
+
+            // "STS#0" is the code for 'Team Site' template
+            oWebCreationInformation.WebTemplate = "STS#0";
+            oWebCreationInformation.Language = 1033;
+
+            Web oWeb = ctx.Site.RootWeb.Webs.Add(oWebCreationInformation);
+            await ctx.ExecuteQueryAsync();
+        }
+        private static async Task StopInheritingPermission(ClientContext ctx, string subsiteurl,string listName, bool copyRoleAssigements)
+        {
+            Web subsite = ctx.Site.OpenWeb(ctx.Web.ServerRelativeUrl +"/" + subsiteurl);
+            Console.WriteLine(ctx.Web.ServerRelativeUrl + "/" + subsiteurl);
+            List list = subsite.Lists.GetByTitle(listName);
+            ctx.Load(list);
+            ctx.ExecuteQuery();
+
+            list.BreakRoleInheritance(copyRoleAssigements, false);
+
+            await ctx.ExecuteQueryAsync();
+        }
+        private static async Task ReEstablishInheritingPermission(ClientContext ctx, string subsiteurl, string listName)
+        {
+            Web subsite = ctx.Site.OpenWeb(ctx.Web.ServerRelativeUrl + "/" + subsiteurl);
+            List list = subsite.Lists.GetByTitle(listName);
+            ctx.Load(list);
+            ctx.ExecuteQuery();
+
+            list.ResetRoleInheritance();
+
+            await ctx.ExecuteQueryAsync();
+        }
+        private static async Task AddUserToPermissionList(ClientContext ctx, string subsiteurl, string listName, string loginName, string perLv)
+        {
+            Web subsite = ctx.Site.OpenWeb(ctx.Web.ServerRelativeUrl + "/" + subsiteurl);
+            Console.WriteLine(ctx.Web.ServerRelativeUrl + "/" + subsiteurl);
+            List list = subsite.Lists.GetByTitle(listName);
+            ctx.Load(list);
+            ctx.ExecuteQuery();
+
+            try
+            {
+                User u = ctx.Web.EnsureUser(loginName);
+                ctx.Load(u);
+                await ctx.ExecuteQueryAsync();
+
+                Console.WriteLine(u.LoginName);
+
+                Principal user = ctx.Web.SiteUsers.GetByLoginName(u.LoginName);
+
+                RoleDefinition writeDefinition = subsite.RoleDefinitions.GetByName(perLv);
+                RoleDefinitionBindingCollection roleDefCollection = new RoleDefinitionBindingCollection(ctx);
+                roleDefCollection.Add(writeDefinition);
+                RoleAssignment newRoleAssignment = list.RoleAssignments.Add(user, roleDefCollection);
+
+                await ctx.ExecuteQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+        private static async Task GetAllGroupPermissionLevel(ClientContext ctx, string subsiteurl)
+        {
+            Web subsite = ctx.Site.OpenWeb(ctx.Web.ServerRelativeUrl + "/" + subsiteurl);
+
+            RoleDefinitionCollection roleDefinitions = subsite.RoleDefinitions;
+            ctx.Load(roleDefinitions);
+            ctx.ExecuteQuery();
+
+            foreach (RoleDefinition roleDefinition in roleDefinitions)
+            {
+                Console.WriteLine(roleDefinition.Name);
+            }
+
+            await ctx.ExecuteQueryAsync();
+        }
         private static async Task CreateGroup(ClientContext ctx, string groupName, string groupDescription)
         {
             GroupCollection oGroupCollection = ctx.Web.SiteGroups;
@@ -1178,7 +1318,6 @@ namespace ConsoleCSOM
             Group oGroup = oGroupCollection.Add(oGroupCreationInformation);
             await ctx.ExecuteQueryAsync();
         }
-
         private static async Task AddUser(ClientContext ctx, string groupName, string loginNameOrEmail)
         {
             GroupCollection groups = ctx.Web.SiteGroups;
@@ -1191,6 +1330,26 @@ namespace ConsoleCSOM
             User aoUser = ctx.Web.EnsureUser(loginNameOrEmail);
             User oUser = group.Users.AddUser(aoUser);
             ctx.ExecuteQuery();
+        }
+        private static async Task CreatePermissionLevelWithManageAndCreateAlertInRoot(ClientContext ctx)
+        {
+            Web web = ctx.Web;
+            ctx.Load(web);
+            ctx.Load(web.AllProperties);
+            ctx.Load(web.RoleDefinitions);
+            ctx.ExecuteQuery();
+            var roleDefinitions = web.RoleDefinitions;
+
+            BasePermissions basePermissions = new BasePermissions();
+            basePermissions.Set(PermissionKind.ManageLists);
+            basePermissions.Set(PermissionKind.CreateAlerts);
+
+            RoleDefinitionCreationInformation roleDefinitionCreationInfo = new RoleDefinitionCreationInformation();
+            roleDefinitionCreationInfo.BasePermissions = basePermissions;
+            roleDefinitionCreationInfo.Name = "Test Level";
+            roleDefinitionCreationInfo.Description = "create alert and manage list";
+            RoleDefinition roleDefinition = ctx.Web.RoleDefinitions.Add(roleDefinitionCreationInfo);
+            await ctx.ExecuteQueryAsync();
         }
     }
 }
