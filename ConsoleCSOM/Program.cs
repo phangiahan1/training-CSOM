@@ -202,16 +202,15 @@ namespace ConsoleCSOM
                     //Console.WriteLine(GetContentTypeByName(ctx, ContentTypeName).Id);
 
                     // PERMISSION EXERCISE
-                    
+
                     //--------Exercise 3 – Permission Inheritance
                     //[3.1]In the Finance and Accounting subsite, go to the List settings of the Accounts custom list and 
                     //stop inheriting permissions.
                     //Add another user to the permission list with Design permissions. 
-                    //Note: You may have to refresh the page after you grant permissions
-
                     string SUBSITE_NAME = "Finance and Accounting";
                     string SUBSITE_URL = "FinanceAndAccounting";
                     string SUBSITE_LIST_NAME = "Accounts";
+
                     //await CreateSubSite(ctx, SUBSITE_URL, SUBSITE_NAME, "This is subsite");
                     //await CreateList(ctx, SUBSITE_LIST_NAME, "List in subsite", SUBSITE_NAME);
                     //await StopInheritingPermission(ctx, SUBSITE_URL, SUBSITE_LIST_NAME, true);
@@ -228,13 +227,16 @@ namespace ConsoleCSOM
                     //await CreatePermissionLevelWithManageAndCreateAlertInRoot(ctx);
 
                     //[4.3] 
-                    //[4.4] Create group "Test Group" ==> grant to "Test Level" ==> Add User
+                    //[4.4] Creaet group "Test Group" ==> grant to "Test Level" ==> Add User
                     string GROUP_NAME = "Test Group";
                     string GROUP_DES = "for testing";
-                    //await CreateGroup(ctx, GROUP_NAME, GROUP_DES);
-                    await GrantToPermissionLevel(ctx, GROUP_NAME, "Test Level");
 
-                    //await AddUser(ctx, GROUP_NAME, "");
+                    //await CreateGroup(ctx, GROUP_NAME, GROUP_DES);
+                    //await GrantToPermissionLevel(ctx, GROUP_NAME, "Test Level");
+
+                    //await AddUser(ctx, GROUP_NAME, "test1@y48hl.onmicrosoft.com");
+                    //await AddUser(ctx, GROUP_NAME, "test2@y48hl.onmicrosoft.com");
+                    //await AddUser(ctx, GROUP_NAME, "test3@y48hl.onmicrosoft.com");
                 }
                 Console.WriteLine($"Press Any Key To Stop!");
                 Console.ReadKey();
@@ -243,7 +245,7 @@ namespace ConsoleCSOM
             {
                 Console.WriteLine(ex);
             }
-        }        
+        }
         static ClientContext GetContext(ClientContextHelper clientContextHelper)
         {
             var builder = new ConfigurationBuilder().AddJsonFile($"appsettings.json", true, true);
@@ -315,7 +317,7 @@ namespace ConsoleCSOM
                     newList.Update();
                     await ctx.ExecuteQueryAsync();
                 }
-                
+
             }
         }
         private static async Task CreateTermSet(ClientContext ctx, string termGroupName, string termSetName)
@@ -488,7 +490,7 @@ namespace ConsoleCSOM
                 fieldValue = null;
             }
 
-            if(fieldValue != null)
+            if (fieldValue != null)
             {
                 UpdateTaxonomyField(ctx, oList, oListItem, "city", fieldValue);
             }
@@ -1083,7 +1085,7 @@ namespace ConsoleCSOM
             var a = listItems.Select(i => i.File);
             await ctx.ExecuteQueryAsync();
 
-           // foreach (var result in results)
+            // foreach (var result in results)
             {
                 foreach (var file in a)
                 {
@@ -1188,7 +1190,7 @@ namespace ConsoleCSOM
                 }
             }
         }
-        private static async Task SetCurrentViewAsDefault(ClientContext ctx, string listName,string viewName)
+        private static async Task SetCurrentViewAsDefault(ClientContext ctx, string listName, string viewName)
         {
             List list = ctx.Web.Lists.GetByTitle(listName);
             View view = list.Views.GetByTitle(viewName);
@@ -1196,7 +1198,7 @@ namespace ConsoleCSOM
             view.DefaultView = true;
             view.Update();
 
-            await ctx.ExecuteQueryAsync();  
+            await ctx.ExecuteQueryAsync();
         }
         private static async Task LoadUserFromEmailOrName(ClientContext ctx, string nameOrMail)
         {
@@ -1223,7 +1225,7 @@ namespace ConsoleCSOM
 
             return Enumerable.FirstOrDefault(contentTypes, ct => ct.Name == contentTypeName);
         }
-        
+
         //exercise permission
         private static async Task CreateSubSite(ClientContext ctx, string subsiteURL, string subsiteTitle, string subsiteDes)
         {
@@ -1243,9 +1245,9 @@ namespace ConsoleCSOM
             Web oWeb = ctx.Site.RootWeb.Webs.Add(oWebCreationInformation);
             await ctx.ExecuteQueryAsync();
         }
-        private static async Task StopInheritingPermission(ClientContext ctx, string subsiteurl,string listName, bool copyRoleAssigements)
+        private static async Task StopInheritingPermission(ClientContext ctx, string subsiteurl, string listName, bool copyRoleAssigements)
         {
-            Web subsite = ctx.Site.OpenWeb(ctx.Web.ServerRelativeUrl +"/" + subsiteurl);
+            Web subsite = ctx.Site.OpenWeb(ctx.Web.ServerRelativeUrl + "/" + subsiteurl);
             Console.WriteLine(ctx.Web.ServerRelativeUrl + "/" + subsiteurl);
             List list = subsite.Lists.GetByTitle(listName);
             ctx.Load(list);
@@ -1277,17 +1279,10 @@ namespace ConsoleCSOM
             try
             {
                 User u = ctx.Web.EnsureUser(loginName);
-                ctx.Load(u);
-                await ctx.ExecuteQueryAsync();
-
-                Console.WriteLine(u.LoginName);
-
-                Principal user = ctx.Web.SiteUsers.GetByLoginName(u.LoginName);
-
                 RoleDefinition writeDefinition = subsite.RoleDefinitions.GetByName(perLv);
                 RoleDefinitionBindingCollection roleDefCollection = new RoleDefinitionBindingCollection(ctx);
                 roleDefCollection.Add(writeDefinition);
-                RoleAssignment newRoleAssignment = list.RoleAssignments.Add(user, roleDefCollection);
+                RoleAssignment newRoleAssignment = list.RoleAssignments.Add(u, roleDefCollection);
 
                 await ctx.ExecuteQueryAsync();
             }
@@ -1326,7 +1321,7 @@ namespace ConsoleCSOM
         private static async Task AddUser(ClientContext ctx, string groupName, string loginNameOrEmail)
         {
             GroupCollection groups = ctx.Web.SiteGroups;
-            Group group = groups.GetByName(groupName); 
+            Group group = groups.GetByName(groupName);
             ctx.Load(group);
             ctx.ExecuteQuery();
 
@@ -1334,7 +1329,7 @@ namespace ConsoleCSOM
 
             User aoUser = ctx.Web.EnsureUser(loginNameOrEmail);
             User oUser = group.Users.AddUser(aoUser);
-            ctx.ExecuteQuery();
+            await ctx.ExecuteQueryAsync();
         }
         private static async Task CreatePermissionLevelWithManageAndCreateAlertInRoot(ClientContext ctx)
         {
@@ -1357,9 +1352,9 @@ namespace ConsoleCSOM
             await ctx.ExecuteQueryAsync();
         }
         private static async Task GrantToPermissionLevel(ClientContext ctx, string groupName, string permissionLevelName)
-        {     
-            RoleDefinitionCollection roleDefinitions= ctx.Web.RoleDefinitions;
-            RoleAssignmentCollection roleAssignments= ctx.Web.RoleAssignments;
+        {
+            RoleDefinitionCollection roleDefinitions = ctx.Web.RoleDefinitions;
+            RoleAssignmentCollection roleAssignments = ctx.Web.RoleAssignments;
 
             Principal user = ctx.Web.SiteGroups.GetByName(groupName);
 
@@ -1368,6 +1363,23 @@ namespace ConsoleCSOM
             roleDefCollection.Add(writeDefinition);
             RoleAssignment newRoleAssignment = ctx.Web.RoleAssignments.Add(user, roleDefCollection);
             await ctx.ExecuteQueryAsync();
+        }
+        private static async Task GetAllUser(ClientContext ctx)
+        {
+            var user = ctx.Web.SiteUsers;
+            ctx.Load(user);
+            await ctx.ExecuteQueryAsync();
+            PeopleManager peopleManager = new PeopleManager(ctx);
+            PersonProperties userProfile;
+            Console.WriteLine("start");
+            foreach (var u in user)
+            {
+                userProfile = peopleManager.GetPropertiesFor(u.LoginName);
+                ctx.Load(userProfile);
+                ctx.ExecuteQuery();
+                if (userProfile.IsPropertyAvailable("DisplayName"))
+                    Console.WriteLine(userProfile.DisplayName);
+            }
         }
     }
 }
