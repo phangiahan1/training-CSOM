@@ -1468,7 +1468,7 @@ namespace ConsoleCSOM
             keywordQuery.QueryText = keyworks;
             keywordQuery.RowLimit  = 100;
             keywordQuery.SourceId = new Guid("b09a7990-05ea-4af9-81ef-edfab16c4e31");
-
+            
             keywordQuery.SelectProperties.Add("AccountName");
             keywordQuery.SelectProperties.Add("UserProfile_GUID");
             keywordQuery.SelectProperties.Add("PreferredName");
@@ -1476,6 +1476,7 @@ namespace ConsoleCSOM
             keywordQuery.SelectProperties.Add("OfficeNumber");
             keywordQuery.SelectProperties.Add("PictureURL");
             keywordQuery.SelectProperties.Add("MobilePhone");
+            keywordQuery.SelectProperties.Add("precio-gender");
 
             SearchExecutor searchExecutor = new SearchExecutor(ctx);
             var results = searchExecutor.ExecuteQuery(keywordQuery);
@@ -1484,10 +1485,11 @@ namespace ConsoleCSOM
 
             foreach (var resultRow in results.Value[0].ResultRows)
             {
-                foreach (var i in resultRow)
-                {
-                   Console.WriteLine(i.Key.ToString() + ": " + i.Value);
-                }
+                //foreach (var i in resultRow)
+                //{
+                //   Console.WriteLine(i.Key.ToString() + ": " + i.Value);
+                //}
+                await GetProperties(ctx, resultRow["AccountName"]+"");
                 Console.WriteLine("==========================================");
             }
             Console.ReadLine();
