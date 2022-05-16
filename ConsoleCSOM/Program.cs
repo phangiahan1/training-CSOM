@@ -237,6 +237,12 @@ namespace ConsoleCSOM
                     //await AddUser(ctx, GROUP_NAME, "test1@y48hl.onmicrosoft.com");
                     //await AddUser(ctx, GROUP_NAME, "test2@y48hl.onmicrosoft.com");
                     //await AddUser(ctx, GROUP_NAME, "test3@y48hl.onmicrosoft.com");
+
+                    //User Profile Properties
+                    await GetAllUser(ctx);
+
+                    //await SetPropertie(ctx, "i:0#.f|membership|test1@y48hl.onmicrosoft.com", "precio-gender", "male");
+                    //await GetProperties(ctx, "i:0#.f|membership|GiaHan2206@y48hl.onmicrosoft.com");
                 }
                 Console.WriteLine($"Press Any Key To Stop!");
                 Console.ReadKey();
@@ -1369,17 +1375,46 @@ namespace ConsoleCSOM
             var user = ctx.Web.SiteUsers;
             ctx.Load(user);
             await ctx.ExecuteQueryAsync();
-            PeopleManager peopleManager = new PeopleManager(ctx);
-            PersonProperties userProfile;
-            Console.WriteLine("start");
             foreach (var u in user)
             {
-                userProfile = peopleManager.GetPropertiesFor(u.LoginName);
-                ctx.Load(userProfile);
-                ctx.ExecuteQuery();
-                if (userProfile.IsPropertyAvailable("DisplayName"))
-                    Console.WriteLine(userProfile.DisplayName);
+                if (u.LoginName[0] == 'i')
+                {
+                    await GetProperties(ctx, u.LoginName);
+                    Console.WriteLine("=====================");
+                }
+
             }
+        }
+        private static async Task GetProperties(ClientContext ctx, string loginName)
+        {
+            PeopleManager peopleManager = new PeopleManager(ctx);
+            PersonProperties personProperties = peopleManager.GetPropertiesFor(loginName);
+            ctx.Load(personProperties, p => p.AccountName, p => p.UserProfileProperties);
+            ctx.ExecuteQuery();
+
+            foreach (var property in personProperties.UserProfileProperties)
+            {
+                if (property.Value.ToString() != "")
+                    Console.WriteLine(string.Format("{0}: {1}",
+                    property.Key.ToString(), property.Value.ToString()));
+            }
+        }
+        private static async Task SetPropertie(ClientContext ctx, string loginName, string propertiName, string changeValue)
+        {
+            PeopleManager peopleManager = new PeopleManager(ctx);
+            PersonProperties personProperties = peopleManager.GetPropertiesFor(loginName);
+            ctx.Load(personProperties, p => p.AccountName, p => p.UserProfileProperties);
+            ctx.ExecuteQuery();
+            try
+            {
+                peopleManager.SetSingleValueProfileProperty(loginName, propertiName, changeValue);
+                ctx.ExecuteQuery();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Fail! " + ex.Message);
+            }
+
         }
     }
 }
