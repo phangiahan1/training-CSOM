@@ -13,6 +13,7 @@ using ListItem = Microsoft.SharePoint.Client.ListItem;
 using View = Microsoft.SharePoint.Client.View;
 using System.Text;
 using Microsoft.SharePoint.Client.UserProfiles;
+using Microsoft.SharePoint.Client.Search.Query;
 
 namespace ConsoleCSOM
 {
@@ -239,10 +240,14 @@ namespace ConsoleCSOM
                     //await AddUser(ctx, GROUP_NAME, "test3@y48hl.onmicrosoft.com");
 
                     //User Profile Properties
-                    await GetAllUser(ctx);
+                    //await GetAllUser(ctx);
 
                     //await SetPropertie(ctx, "i:0#.f|membership|test1@y48hl.onmicrosoft.com", "precio-gender", "male");
                     //await GetProperties(ctx, "i:0#.f|membership|GiaHan2206@y48hl.onmicrosoft.com");
+
+                    //Search
+                    //await Search(ctx, new List<string> { "Title", "Author", "Path"}, "lovely");
+                    await SearchUser(ctx, "test1");
                 }
                 Console.WriteLine($"Press Any Key To Stop!");
                 Console.ReadKey();
@@ -1415,6 +1420,77 @@ namespace ConsoleCSOM
                 Console.WriteLine("Fail! " + ex.Message);
             }
 
+        }
+        private static async Task Search(ClientContext ctx, string keyworks)
+        {
+            KeywordQuery keywordQuery = new KeywordQuery(ctx);
+
+            keywordQuery.QueryText = keyworks;
+            SearchExecutor searchExecutor = new SearchExecutor(ctx);
+            ClientResult<ResultTableCollection> results = searchExecutor.ExecuteQuery(keywordQuery);
+
+            await ctx.ExecuteQueryAsync();
+            foreach (var resultRow in results.Value[0].ResultRows)
+            {
+                foreach (var i in resultRow)
+                {
+                    Console.WriteLine(i.Key.ToString() + ": " + i.Value);
+                }
+            }
+            Console.ReadLine();
+        }
+        private static async Task Search(ClientContext ctx, List<string> properties, string keyworks)
+        {
+            KeywordQuery keywordQuery = new KeywordQuery(ctx);
+
+            keywordQuery.QueryText = keyworks;
+           
+            SearchExecutor searchExecutor = new SearchExecutor(ctx);
+            ClientResult<ResultTableCollection> results = searchExecutor.ExecuteQuery(keywordQuery);
+
+            await ctx.ExecuteQueryAsync();
+            foreach (var resultRow in results.Value[0].ResultRows)
+            {
+                //Console.WriteLine("{0}: {1} ({2})", resultRow["Title"], resultRow["Path"], resultRow["Write"]);
+                foreach(var i in resultRow)
+                {
+                    if (properties.Contains(i.Key))
+                        Console.WriteLine(i.Key.ToString() + ": " + i.Value);
+                }
+                Console.WriteLine("==========================================");
+            }
+            Console.ReadLine();
+        }
+        private static async Task SearchUser(ClientContext ctx, string keyworks)
+        {
+            KeywordQuery keywordQuery = new KeywordQuery(ctx);
+
+            keywordQuery.QueryText = keyworks;
+            keywordQuery.RowLimit  = 100;
+            keywordQuery.SourceId = new Guid("b09a7990-05ea-4af9-81ef-edfab16c4e31");
+
+            keywordQuery.SelectProperties.Add("AccountName");
+            keywordQuery.SelectProperties.Add("UserProfile_GUID");
+            keywordQuery.SelectProperties.Add("PreferredName");
+            keywordQuery.SelectProperties.Add("WorkEmail");
+            keywordQuery.SelectProperties.Add("OfficeNumber");
+            keywordQuery.SelectProperties.Add("PictureURL");
+            keywordQuery.SelectProperties.Add("MobilePhone");
+
+            SearchExecutor searchExecutor = new SearchExecutor(ctx);
+            var results = searchExecutor.ExecuteQuery(keywordQuery);
+
+            await ctx.ExecuteQueryAsync();
+
+            foreach (var resultRow in results.Value[0].ResultRows)
+            {
+                foreach (var i in resultRow)
+                {
+                   Console.WriteLine(i.Key.ToString() + ": " + i.Value);
+                }
+                Console.WriteLine("==========================================");
+            }
+            Console.ReadLine();
         }
     }
 }
