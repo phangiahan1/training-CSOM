@@ -247,7 +247,7 @@ namespace ConsoleCSOM
 
                     //Search
                     //await Search(ctx, new List<string> { "Title", "Author", "Path"}, "lovely");
-                    await SearchUser(ctx, "test1");
+                    await SearchUser(ctx, "*");
                 }
                 Console.WriteLine($"Press Any Key To Stop!");
                 Console.ReadKey();
@@ -1476,7 +1476,10 @@ namespace ConsoleCSOM
             keywordQuery.SelectProperties.Add("OfficeNumber");
             keywordQuery.SelectProperties.Add("PictureURL");
             keywordQuery.SelectProperties.Add("MobilePhone");
-            keywordQuery.SelectProperties.Add("precio-gender");
+            keywordQuery.SelectProperties.Add("RefinableString00");
+            keywordQuery.SelectProperties.Add("RefinableString01");
+            keywordQuery.SelectProperties.Add("RefinableString01");
+            keywordQuery.SelectProperties.Add("RefinableString03");
 
             SearchExecutor searchExecutor = new SearchExecutor(ctx);
             var results = searchExecutor.ExecuteQuery(keywordQuery);
@@ -1487,9 +1490,13 @@ namespace ConsoleCSOM
             {
                 //foreach (var i in resultRow)
                 //{
-                //   Console.WriteLine(i.Key.ToString() + ": " + i.Value);
+                //    Console.WriteLine(i.Key.ToString() + ": " + i.Value);
                 //}
-                await GetProperties(ctx, resultRow["AccountName"]+"");
+                Console.WriteLine("AccountName" + ": " + resultRow["AccountName"]);
+                Console.WriteLine("UserProfile_GUID" + ": " + resultRow["UserProfile_GUID"]);
+                Console.WriteLine("RefinableString00" + ": " + resultRow["RefinableString00"]);
+                Console.WriteLine("RefinableString01" + ": " + resultRow["RefinableString01"]);
+                Console.WriteLine("RefinableString03" + ": " + resultRow["RefinableString03"]);
                 Console.WriteLine("==========================================");
             }
             Console.ReadLine();
